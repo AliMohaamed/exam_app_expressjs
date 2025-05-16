@@ -2,11 +2,16 @@ import ApiError from "./utils/error/ApiError.js";
 import authRouter from "./modules/auth/auth.router.js";
 import morgan from "morgan";
 import sendResponse from "./utils/response.js";
-
+import cors from "cors";
+import compression from "compression";
 export const appRouter = (app, express) => {
   // Global Middleware
   app.use(express.json());
-  app.use(morgan(":method :url :response-time ms"));
+  app.use(cors());
+  app.use(compression());
+  if (process.env.ENV == "dev") {
+    app.use(morgan(":method :url :response-time ms"));
+  }
 
   // Routes
   // Auth
