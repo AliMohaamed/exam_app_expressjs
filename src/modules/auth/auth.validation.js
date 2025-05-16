@@ -1,5 +1,6 @@
 import Joi from "joi";
 
+// Register
 export const registerSchema = Joi.object({
   name: Joi.string().alphanum().min(3).max(20).required().messages({
     "string.alphanum": "Name must contain only alphanumeric characters.",
@@ -32,5 +33,27 @@ export const registerSchema = Joi.object({
   confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
     "any.only": "Confirm password does not match.",
     "any.required": "Confirm password is required.",
+  }),
+}).required();
+
+// Activation Code
+export const activateAccountSchema = Joi.object({
+  activationCode: Joi.string().required().messages({
+    "any.required": "activationCode is required.",
+  }),
+}).required();
+
+// Login
+export const loginSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email is required.",
+    }),
+
+  password: Joi.string().required().messages({
+    "any.required": "Password is required.",
   }),
 }).required();
