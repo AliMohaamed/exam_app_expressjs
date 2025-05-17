@@ -15,7 +15,7 @@ export const appRouter = (app, express) => {
 
   // Routes
   // Auth
-  app.use("api/auth", authRouter);
+  app.use("/api/auth", authRouter);
 
   // not found page router
   app.all("/{*any}", (req, res, next) => {
