@@ -64,5 +64,5 @@ export const login = asyncHandler(async (req, res, next) => {
   // change user status to online and save user in db
   user.status = "online";
   await user.save();
-  return sendResponse(res, { message: "Login Successfully", data: { token } });
+  return res.status(200).json({ message: "Login Successfully", token });
 });
