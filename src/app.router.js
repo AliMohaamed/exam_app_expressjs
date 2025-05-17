@@ -9,7 +9,7 @@ export const appRouter = (app, express) => {
   app.use(express.json());
   app.use(cors());
   app.use(compression());
-  if (process.env.ENV == "dev") {
+  if (process.env.NODE_ENV == "dev") {
     app.use(morgan(":method :url :response-time ms"));
   }
 
@@ -24,7 +24,7 @@ export const appRouter = (app, express) => {
 
   // Global error handler
   app.use((error, req, res, next) => {
-    const isDev = process.env.ENV === "dev";
+    const isDev = process.env.NODE_ENV === "dev";
     return sendResponse(res, {
       statusCode: error.statusCode || 500,
       success: false,
