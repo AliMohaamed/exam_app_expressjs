@@ -17,7 +17,7 @@ export const registerSchema = Joi.object({
       "any.required": "Email is required.",
     }),
   level: Joi.string().required().messages({
-    "any.required": "Email is required.",
+    "any.required": "Level is required.",
   }),
   password: Joi.string()
     .pattern(
