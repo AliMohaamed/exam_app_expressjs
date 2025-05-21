@@ -3,6 +3,7 @@ import { checkPassword, createHashedPassword } from "../utils/hashPassword.js";
 import crypto from "crypto";
 
 export const AuthService = {
+  // Register
   async registerUser({ name, email, password, level }) {
     // check email if exist in db
     const existingUser = await User.findOne({ email });
@@ -21,6 +22,7 @@ export const AuthService = {
     });
     return user;
   },
+  // Verify User
   async verifyUser(email, password) {
     const user = await User.findOne({ email });
     if (!user) throw new Error("Invalid email or password");
@@ -43,4 +45,6 @@ export const AuthService = {
 
     return user;
   },
+  // Logout
+  
 };

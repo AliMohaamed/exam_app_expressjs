@@ -5,6 +5,7 @@ import sendResponse from "../../utils/response.js";
 import { EmailService } from "../../services/email.service.js";
 import { AuthService } from "../../services/auth.service.js";
 import { TokenService } from "../../services/token.service.js";
+import { Token } from "../../../DB/models/token.model.js";
 // Register
 export const register = asyncHandler(async (req, res, next) => {
   // data from body
@@ -65,4 +66,18 @@ export const login = asyncHandler(async (req, res, next) => {
   user.status = "online";
   await user.save();
   return res.status(200).json({ message: "Login Successfully", token });
+});
+
+// Login
+export const logout = asyncHandler(async (req, res, next) => {
+  console.log(req.token);
+  const tokenDB = await Token.findOneAndUpdate(
+    { token: req.token, isValid: true },
+    { isValid: false },
+    { new: true }
+  );
+  if (!tokenDB)
+    return next(new ApiError(400, "Token already invalidated or not found"));
+
+  return sendResponse(res, { message: "Logged out successfully" });
 });

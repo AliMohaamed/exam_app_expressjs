@@ -5,8 +5,12 @@ export const connectionDB = async () => {
     .connect(process.env.CONNECTIONURL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 10000, // 10 ثواني مهلة للاتصال
+      serverSelectionTimeoutMS: 10000,
     })
     .then(() => console.log("DB Connected....!"))
-    .catch((error) => console.log("Error", error));
+    .catch((error) => {
+      console.log("Error", error);
+      // Optional: إعادة المحاولة بعد 5 ثواني
+      // setTimeout(connectionDB, 5000);
+    });
 };

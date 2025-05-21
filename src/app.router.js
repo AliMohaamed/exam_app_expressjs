@@ -1,9 +1,10 @@
 import ApiError from "./utils/error/ApiError.js";
 import authRouter from "./modules/auth/auth.router.js";
 import morgan from "morgan";
-import sendResponse from "./utils/response.js";
+
 import cors from "cors";
 import compression from "compression";
+import errorHandler from "./middleware/errorhandler.middleware.js";
 export const appRouter = (app, express) => {
   // Global Middleware
   app.use(express.json());
@@ -23,13 +24,5 @@ export const appRouter = (app, express) => {
   });
 
   // Global error handler
-  app.use((error, req, res, next) => {
-    const isDev = process.env.NODE_ENV === "dev";
-    return sendResponse(res, {
-      statusCode: error.statusCode || 500,
-      success: false,
-      message: error.message || "Internal server error",
-      ...(isDev && { stack: error.stack }),
-    });
-  });
+  app.use(errorHandler);
 };
