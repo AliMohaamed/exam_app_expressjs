@@ -16,7 +16,9 @@ export const registerSchema = Joi.object({
       "string.email": "Please enter a valid email address.",
       "any.required": "Email is required.",
     }),
-
+  level: Joi.string()
+    .required()
+    .message({ "any.required": "Level is required." }),
   password: Joi.string()
     .pattern(
       new RegExp(

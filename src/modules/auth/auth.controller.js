@@ -8,11 +8,11 @@ import { TokenService } from "../../services/token.service.js";
 // Register
 export const register = asyncHandler(async (req, res, next) => {
   // data from body
-  const { name, email, password } = req.body;
+  const { name, email, password, level } = req.body;
   // 1- Register user using service
   let user;
   try {
-    user = await AuthService.registerUser({ name, email, password });
+    user = await AuthService.registerUser({ name, email, password, level });
   } catch (err) {
     return next(new ApiError(400, err.message));
   }

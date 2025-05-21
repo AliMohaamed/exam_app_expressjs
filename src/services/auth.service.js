@@ -3,7 +3,7 @@ import { checkPassword, createHashedPassword } from "../utils/hashPassword.js";
 import crypto from "crypto";
 
 export const AuthService = {
-  async registerUser({ name, email, password }) {
+  async registerUser({ name, email, password, level }) {
     // check email if exist in db
     const existingUser = await User.findOne({ email });
     if (existingUser) throw new Error("Email already registered");
@@ -16,6 +16,7 @@ export const AuthService = {
       name,
       email,
       password: hashPassword,
+      level,
       activationCode,
     });
     return user;

@@ -22,6 +22,9 @@ const userSchema = new Schema(
       type: String,
       enum: ["male", "female"],
     },
+    level: {
+      type: String,
+    },
     phone: String,
     status: {
       type: String,
