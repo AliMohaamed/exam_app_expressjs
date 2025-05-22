@@ -8,8 +8,6 @@ export const AuthService = {
     // check email if exist in db
     const existingUser = await User.findOne({ email });
     if (existingUser) throw new Error("Email already registered");
-    // hash password
-    const hashPassword = await createHashedPassword(password);
     // generate activation code
     const activationCode = crypto.randomBytes(64).toString("hex");
     // create user in db
@@ -46,5 +44,4 @@ export const AuthService = {
     return user;
   },
   // Logout
-  
 };

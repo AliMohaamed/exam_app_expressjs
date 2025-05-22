@@ -1,4 +1,5 @@
 import mongoose, { Schema, Types, model } from "mongoose";
+import { createHashedPassword } from "../../src/utils/hashPassword.js";
 
 const userSchema = new Schema(
   {
@@ -62,5 +63,17 @@ const userSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Hash the password before saving it to the database
+userSchema.pre("save", async function (next) {
+  try {
+    if (this.isModified("password")) {
+      this.password = await createHashedPassword(this.password);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 export const User = mongoose.models.User || model("User", userSchema);

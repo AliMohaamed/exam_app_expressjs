@@ -35,3 +35,18 @@ export const protect = asyncHandler(async (req, res, next) => {
   req.token = token;
   next();
 });
+
+export const authorizeRole = (role) => {
+  return asyncHandler(async (req, res, next) => {
+    // Check if user has the required role
+    if (req.user.role !== role)
+      return next(
+        new ApiError(
+          403,
+          "Access denied. You do not have permission to perform this action."
+        )
+      );
+
+    next();
+  });
+};

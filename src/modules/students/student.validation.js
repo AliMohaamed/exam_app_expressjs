@@ -1,14 +1,13 @@
 import Joi from "joi";
+import { isValidObjectId } from "../../utils/validId.js";
 
-// Register
-export const registerSchema = Joi.object({
+export const addStudentSchema = Joi.object({
   name: Joi.string().min(3).max(20).required().messages({
     "string.alphanum": "Name must contain only alphanumeric characters.",
     "string.min": "Name must be at least 3 characters long.",
     "string.max": "Name cannot exceed 30 characters.",
     "any.required": "Name is required.",
   }),
-
   email: Joi.string()
     .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
     .required()
@@ -16,9 +15,6 @@ export const registerSchema = Joi.object({
       "string.email": "Please enter a valid email address.",
       "any.required": "Email is required.",
     }),
-  level: Joi.string().required().messages({
-    "any.required": "Level is required.",
-  }),
   password: Joi.string()
     .pattern(
       new RegExp(
@@ -32,30 +28,28 @@ export const registerSchema = Joi.object({
       "any.required": "Password is required.",
     }),
 
-  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
-    "any.only": "Confirm password does not match.",
-    "any.required": "Confirm password is required.",
+  level: Joi.string().required().messages({
+    "any.required": "Level is required.",
   }),
 }).required();
 
-// Activation Code
-export const activateAccountSchema = Joi.object({
-  activationCode: Joi.string().required().messages({
-    "any.required": "activationCode is required.",
-  }),
-}).required();
-
-// Login
-export const loginSchema = Joi.object({
+export const updateStudentSchema = Joi.object({
+  id: Joi.string().custom(isValidObjectId).required(),
+  name: Joi.string().min(3).max(20).optional(),
   email: Joi.string()
-    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-    .required()
-    .messages({
-      "string.email": "Please enter a valid email address.",
-      "any.required": "Email is required.",
-    }),
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "org"] } })
+    .optional(),
+  password: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,30}$"
+      )
+    )
+    .optional(),
+  // level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
+  level: Joi.string().optional(),
+}).required();
 
-  password: Joi.string().required().messages({
-    "any.required": "Password is required.",
-  }),
+export const deleteStudentSchema = Joi.object({
+  id: Joi.string().custom(isValidObjectId).required(),
 }).required();

@@ -1,10 +1,11 @@
 import ApiError from "./utils/error/ApiError.js";
 import authRouter from "./modules/auth/auth.router.js";
+import studentRouter from "./modules/students/student.router.js";
 import morgan from "morgan";
-
 import cors from "cors";
 import compression from "compression";
 import errorHandler from "./middleware/errorhandler.middleware.js";
+
 export const appRouter = (app, express) => {
   // Global Middleware
   app.use(express.json());
@@ -15,8 +16,12 @@ export const appRouter = (app, express) => {
   }
 
   // Routes
+
   // Auth
   app.use("/api/auth", authRouter);
+
+  // Student
+  app.use("/api/student", studentRouter);
 
   // not found page router
   app.all("/{*any}", (req, res, next) => {

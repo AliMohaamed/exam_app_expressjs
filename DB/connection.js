@@ -11,6 +11,6 @@ export const connectionDB = async () => {
     .catch((error) => {
       console.log("Error", error);
       // Optional: إعادة المحاولة بعد 5 ثواني
-      // setTimeout(connectionDB, 5000);
+      setTimeout(connectionDB, 5000);
     });
 };
