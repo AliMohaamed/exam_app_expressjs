@@ -1,5 +1,5 @@
 import { User } from "../../DB/models/user.model.js";
-import { checkPassword, createHashedPassword } from "../utils/hashPassword.js";
+import { checkPassword } from "../utils/hashPassword.js";
 import crypto from "crypto";
 
 export const AuthService = {
@@ -14,7 +14,7 @@ export const AuthService = {
     const user = await User.create({
       name,
       email,
-      password: hashPassword,
+      password,
       level,
       activationCode,
     });
