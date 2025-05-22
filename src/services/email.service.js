@@ -3,8 +3,7 @@ import { generateActivationEmail } from "../utils/generateHTML.js";
 
 export const EmailService = {
   async sendActivationEmail({ email, activationCode }) {
-    // const link = `${FE_URL}/auth/confirmEmail/${activationCode}`; // Front
-    const link = `${process.env.FE_URL}/auth/confirmEmail/${activationCode}`; // Backend
+    const link = `${process.env.FE_URL}/auth/confirmEmail/${activationCode}`; 
     const html = generateActivationEmail(link);
 
     return await sendEmail({

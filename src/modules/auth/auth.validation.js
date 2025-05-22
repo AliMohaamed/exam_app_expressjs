@@ -59,3 +59,61 @@ export const loginSchema = Joi.object({
     "any.required": "Password is required.",
   }),
 }).required();
+
+// Forget Password
+export const forgetPasswordSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email is required.",
+    }),
+}).required();
+
+// verifyOtp
+export const verifyOtpSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email is required.",
+    }),
+  otp: Joi.string().length(6).required().messages({
+    "string.length": "OTP must be 6 digits long.",
+    "any.required": "OTP is required.",
+  }),
+}).required();
+
+// Reset Password
+export const resetPasswordSchema = Joi.object({
+  email: Joi.string()
+    .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+    .required()
+    .messages({
+      "string.email": "Please enter a valid email address.",
+      "any.required": "Email is required.",
+    }),
+  otp: Joi.string().length(6).required().messages({
+    "string.length": "OTP must be 6 digits long.",
+    "any.required": "OTP is required.",
+  }),
+  password: Joi.string()
+    .pattern(
+      new RegExp(
+        "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{3,30}$"
+      )
+    )
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password must be 3-30 characters long, contain at least one letter, one number and one special character (!@#$%^&*).",
+      "any.required": "Password is required.",
+    }),
+
+  confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
+    "any.only": "Confirm password does not match.",
+    "any.required": "Confirm password is required.",
+  }),
+}).required();

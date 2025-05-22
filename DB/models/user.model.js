@@ -43,6 +43,8 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    otp: String,
+    otpExpires: Date,
     activationCode: String,
     profileImage: {
       secure_url: {
@@ -55,12 +57,6 @@ const userSchema = new Schema(
         default: "user_pwsozt",
       },
     },
-    coverImage: [
-      {
-        secure_url: { type: String, required: true },
-        public_id: { type: String, required: true },
-      },
-    ],
   },
   { timestamps: true }
 );

@@ -6,6 +6,7 @@ import { EmailService } from "../../services/email.service.js";
 import { AuthService } from "../../services/auth.service.js";
 import { TokenService } from "../../services/token.service.js";
 import { Token } from "../../../DB/models/token.model.js";
+import { checkPassword } from "../../utils/hashPassword.js";
 // Register
 export const register = asyncHandler(async (req, res, next) => {
   // data from body
@@ -24,7 +25,11 @@ export const register = asyncHandler(async (req, res, next) => {
   });
   // 3- Respond
   return isSent
-    ? sendResponse(res, { message: "Check Your Mail", data: user })
+    ? sendResponse(res, {
+        message:
+          "Registration successful! Please check your email to activate your account.",
+        data: user,
+      })
     : next(
         new ApiError(400, "User created but failed to send activation email")
       );
@@ -68,9 +73,8 @@ export const login = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ message: "Login Successfully", token });
 });
 
-// Login
+// Logout
 export const logout = asyncHandler(async (req, res, next) => {
-  console.log(req.token);
   const tokenDB = await Token.findOneAndUpdate(
     { token: req.token, isValid: true },
     { isValid: false },
@@ -80,4 +84,62 @@ export const logout = asyncHandler(async (req, res, next) => {
     return next(new ApiError(400, "Token already invalidated or not found"));
 
   return sendResponse(res, { message: "Logged out successfully" });
+});
+
+// Forget Password
+export const forgetPassword = asyncHandler(async (req, res, next) => {
+  const success = await AuthService.forgetPassword(req.body.email);
+  return success
+    ? sendResponse(res, {
+        message:
+          "OTP has been sent to your email. Please check and use it to reset your password.",
+      })
+    : next(
+        new ApiError(
+          400,
+          "Failed to process password reset request. Please try again."
+        )
+      );
+});
+
+// Verify OTP
+export const verifyOtp = asyncHandler(async (req, res, next) => {
+  const { email, otp } = req.body;
+  await AuthService.validateOtp(email, otp);
+  sendResponse(res, {
+    message: "OTP verified successfully",
+  });
+});
+
+// Reset Password
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  const { email, otp, password } = req.body;
+  const user = await AuthService.validateOtp(email, otp);
+  if (!user) {
+    return next(new ApiError(400, "Invalid OTP"));
+  }
+  // Check if password same as old password
+  // const isSame = await AuthService.checkPassword(password, user.password);
+  const isSame = checkPassword(password, user.password);
+  if (isSame) {
+    return next(
+      new ApiError(
+        400,
+        "New password cannot be the same as old password. Please choose a different password."
+      )
+    );
+  }
+
+  // Save in DB
+  user.password = password;
+  user.otp = undefined;
+  user.otpExpires = undefined;
+  await user.save();
+
+  // invalidate tokens
+  await Token.updateMany({ user: user._id }, { isValid: false });
+
+  return sendResponse(res, {
+    message: "Password reset successfully",
+  });
 });
