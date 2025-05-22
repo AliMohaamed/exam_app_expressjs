@@ -8,7 +8,8 @@ import { User } from "../../DB/models/user.model.js";
 export const protect = asyncHandler(async (req, res, next) => {
   // 1. Read token from Authorization header
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith(`${process.env.BEARERKEY} `)) {
+  console.log("authHeader", authHeader);
+  if (!authHeader?.startsWith(`${process.env.BEARERKEY}`)) {
     return next(new ApiError(401, "Access denied. No token provided."));
   }
 
