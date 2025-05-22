@@ -140,6 +140,6 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   await Token.updateMany({ user: user._id }, { isValid: false });
 
   return sendResponse(res, {
-    message: "Password reset successfully",
+    message: "Password reset successfully, please login with new password",
   });
 });

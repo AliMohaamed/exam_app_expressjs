@@ -162,7 +162,7 @@ export function resetPasswordTemp(code) {
                                         
                                         <!-- Instructions -->
                                         <p style="margin: 25px 0 0 0; font-size: 14px; line-height: 21px; color: #6B7280; text-align: center;">
-                                            Enter this code in the password reset form. This code will expire in <strong>15 minutes</strong>.
+                                            Enter this code in the password reset form. This code will expire in <strong>5 minutes</strong>.
                                         </p>
                                     </td>
                                 </tr>
