@@ -4,6 +4,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
 import sendResponse from "../../utils/response.js";
 
+// Create Exam - Admin only
 export const createExam = asyncHandler(async (req, res, next) => {
   const exam = await Exam.create({ ...req.body, createdBy: req.user._id });
 
@@ -100,5 +101,40 @@ export const deleteExam = asyncHandler(async (req, res, next) => {
 
   sendResponse(res, {
     message: "Exam deleted successfully",
+  });
+});
+
+// Get Exam Statistics - Admin only
+export const getExamStats = asyncHandler(async (req, res, next) => {
+  const { examId } = req.params;
+
+  const exam = await Exam.findById(examId).populate("questions");
+
+  if (!exam) {
+    return next(new ApiError(404, "Exam not found"));
+  }
+  const stats = {
+    totalQuestions: exam.questions.length,
+    questionsByType: {},
+    questionsByDifficulty: {},
+    totalPoints: 0,
+  };
+
+  exam.questions.forEach((question) => {
+    // Count by type
+    stats.questionsByType[question.questionType] =
+      (stats.questionsByType[question.questionType] || 0) + 1;
+
+    // Count by difficulty
+    stats.questionsByDifficulty[question.difficulty] =
+      (stats.questionsByDifficulty[question.difficulty] || 0) + 1;
+
+    // Sum total points
+    stats.totalPoints += question.points;
+  });
+
+  sendResponse(res, {
+    data: { stats, exam },
+    message: "Exam statistics retrieved successfully",
   });
 });

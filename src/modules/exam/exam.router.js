@@ -6,6 +6,7 @@ import {
   deleteExam,
   getAllExams,
   getExamById,
+  getExamStats,
   updateExam,
 } from "./exam.controller.js";
 import {
@@ -35,5 +36,13 @@ router
   .get(isValid(idSchema), getExamById)
   .put(isValid(updateExamSchema), updateExam)
   .delete(isValid(idSchema), deleteExam);
+
+router.get(
+  "/:examId/stats",
+  protect,
+  authorizeRole("admin"),
+  isValid(idSchema),
+  getExamStats
+);
 
 export default router;
