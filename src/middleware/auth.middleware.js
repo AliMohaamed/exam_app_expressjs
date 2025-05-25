@@ -1,5 +1,5 @@
 import { Token } from "../../DB/models/token.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/handlers/asyncHandler.js";
 import ApiError from "../utils/error/ApiError.js";
 
 import jwt from "jsonwebtoken";

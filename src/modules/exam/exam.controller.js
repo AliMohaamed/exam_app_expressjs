@@ -1,6 +1,6 @@
 import { Exam } from "../../../DB/models/exam.model.js";
 import { Question } from "../../../DB/models/question.model.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
 import sendResponse from "../../utils/response.js";
 

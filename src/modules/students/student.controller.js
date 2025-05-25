@@ -1,12 +1,12 @@
 import { User } from "../../../DB/models/user.model.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
 import {
   createOne,
   deleteOne,
   getById,
   updateOne,
-} from "../../utils/handlersFactory.js";
+} from "../../utils/handlers/handlersFactory.js";
 import sendResponse from "../../utils/response.js";
 
 export const addStudent = createOne(User, {

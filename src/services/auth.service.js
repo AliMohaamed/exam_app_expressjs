@@ -3,10 +3,9 @@ import { generateExpiryDate } from "../utils/generateExpiryDate.js";
 import { checkPassword } from "../utils/hashPassword.js";
 import crypto from "crypto";
 import randomstring from "randomstring";
-import { sendEmail } from "../utils/sendMail.js";
-import { resetPasswordTemp } from "../utils/generateHTML.js";
+import { sendEmail } from "../utils/email/sendMail.js";
+import { resetPasswordTemp } from "../utils/email/generateHTML.js";
 import ApiError from "../utils/error/ApiError.js";
-import { th } from "date-fns/locale";
 
 export const AuthService = {
   // Register

@@ -1,5 +1,5 @@
 import { User } from "../../../DB/models/user.model.js";
-import { asyncHandler } from "../../utils/asyncHandler.js";
+import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
 import sendResponse from "../../utils/response.js";
 import { EmailService } from "../../services/email.service.js";

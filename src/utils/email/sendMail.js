@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { host } from "../constants.js";
+import { host } from "../../constants.js";
 export const sendEmail = async ({ to, subject, html }) => {
   // sender
   const transporter = nodemailer.createTransport({

@@ -1,6 +1,6 @@
 import { asyncHandler } from "./asyncHandler.js";
-import ApiError from "./error/ApiError.js";
-import sendResponse from "./response.js";
+import ApiError from "../error/ApiError.js";
+import sendResponse from "../response.js";
 
 export const deleteOne = (Model) =>
   asyncHandler(async (req, res, next) => {

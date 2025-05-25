@@ -1,5 +1,5 @@
-import { sendEmail } from "../utils/sendMail.js";
-import { generateActivationEmail } from "../utils/generateHTML.js";
+import { sendEmail } from "../utils/email/sendMail.js";
+import { generateActivationEmail } from "../utils/email/generateHTML.js";
 
 export const EmailService = {
   async sendActivationEmail({ email, activationCode }) {
