@@ -4,7 +4,18 @@ import sendResponse from "../../utils/response.js";
 
 export const createQuestion = asyncHandler(async (req, res, next) => {
   const { examId } = req.params;
-
+  // Check if exam exists
+  const exam = await Exam.findById(examId);
+  if (!exam) {
+    throw new ApiError(404, "Exam not found");
+  }
+  // Check if user is the creator of the exam or admin
+  if (
+    exam.createdBy.toString() !== req.user._id.toString() &&
+    req.user.role !== "admin"
+  ) {
+    throw new ApiError(403, "Not authorized to add questions to this exam");
+  }
   const question = await Question.create({
     ...req.body,
     exam: examId,
@@ -14,6 +25,6 @@ export const createQuestion = asyncHandler(async (req, res, next) => {
   sendResponse(res, {
     statusCode: 201,
     data: question,
-    message: "Created Question Successfully",
+    message: "Question created successfully",
   });
 });

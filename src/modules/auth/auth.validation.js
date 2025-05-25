@@ -21,17 +21,14 @@ export const registerSchema = Joi.object({
   }),
   password: Joi.string()
     .pattern(
-      new RegExp(
-        "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{3,30}$"
-      )
+      new RegExp("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-]).{8,}$")
     )
     .required()
     .messages({
       "string.pattern.base":
-        "Password must be 3-30 characters long, contain at least one letter, one number and one special character (!@#$%^&*).",
+        "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number and one special character (#?!@$%^&*-).",
       "any.required": "Password is required.",
     }),
-
   confirmPassword: Joi.string().valid(Joi.ref("password")).required().messages({
     "any.only": "Confirm password does not match.",
     "any.required": "Confirm password is required.",
@@ -101,14 +98,12 @@ export const resetPasswordSchema = Joi.object({
   }),
   password: Joi.string()
     .pattern(
-      new RegExp(
-        "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{3,30}$"
-      )
+      new RegExp("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-]).{8,}$")
     )
     .required()
     .messages({
       "string.pattern.base":
-        "Password must be 3-30 characters long, contain at least one letter, one number and one special character (!@#$%^&*).",
+        "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number and one special character (#?!@$%^&*-).",
       "any.required": "Password is required.",
     }),
 
