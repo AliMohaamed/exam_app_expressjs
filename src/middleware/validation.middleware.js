@@ -1,5 +1,5 @@
 import ApiError from "../utils/error/ApiError.js";
-
+import { Types } from "mongoose";
 export const isValid = (schema) => {
   return (req, res, next) => {
     const copyReqObj = { ...req.body, ...req.params, ...req.query };
@@ -15,4 +15,11 @@ export const isValid = (schema) => {
 
     next();
   };
+};
+
+// Custom validation for ObjectId
+export const isValidObjectId = (value, helper) => {
+  return Types.ObjectId.isValid(value)
+    ? true
+    : helper.message("Invalid Object ID");
 };

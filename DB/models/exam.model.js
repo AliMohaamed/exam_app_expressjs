@@ -1,54 +1,39 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
+const examSchema = new Schema(
+  {
+    subject: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    level: {
+      type: String,
+      enum: ["beginner", "intermediate", "advanced"],
+      required: true,
+    },
+    duration: {
+      type: Number, // in minutes
+      required: true,
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+);
 
+// Virtual populate
+examSchema.virtual("questions", {
+  ref: "Question",
+  foreignField: "exam",
+  localField: "_id",
+});
 
-
-// const examSchema = new Schema({
-//   examName: {
-//     type: String,
-//     required: true,
-//     },
-//     examDate: {
-//     type: Date,
-//     required: true,
-//     },
-//     examDuration: {
-//     type: Number,
-//     required: true,
-//     },
-//     examType: {
-//     type: String,
-//     enum: ["MCQ", "Descriptive"],
-//     required: true,
-//     },
-//     examMarks: {
-//     type: Number,
-//     required: true,
-//     },
-//     examTotalMarks: {
-//     type: Number,
-//     required: true,
-//     },
-//     examSubject: {
-//     type: String,
-//     required: true,
-//     },
-//     examClass: {
-//     type: String,
-//     required: true,
-//     },
-//     examStatus: {
-//     type: String,
-//     enum: ["Scheduled", "Completed", "Cancelled"],
-//     required: true,
-//     },
-//     examCreatedBy: {
-//     type: Schema.Types.ObjectId,
-//     ref: "User",
-//     required: true,
-//     },
-//     examCreatedAt: {
-//     type: Date,
-//     default: Date.now,
-//     },
-// });
+export const Exam = mongoose.models.Exam || model("Exam", examSchema);

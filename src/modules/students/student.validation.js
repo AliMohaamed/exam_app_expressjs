@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { isValidObjectId } from "../../utils/validId.js";
+import { isValidObjectId } from "../../middleware/validation.middleware.js";
 
 export const addStudentSchema = Joi.object({
   name: Joi.string().min(3).max(20).required().messages({
