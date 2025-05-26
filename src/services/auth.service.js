@@ -41,7 +41,7 @@ export const AuthService = {
     if (!user) throw new ApiError(404, "Email not found");
 
     const otp = randomstring.generate({ length: 6, charset: "numeric" });
-    const otpExpires = generateExpiryDate(1, "minutes");
+    const otpExpires = generateExpiryDate(5, "minutes");
 
     user.otp = otp;
     user.otpExpires = otpExpires;

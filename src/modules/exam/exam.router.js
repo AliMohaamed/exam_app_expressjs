@@ -32,17 +32,11 @@ router
 
 router
   .route("/:examId")
-  .all(protect, authorizeRole("admin"))
+  .all(protect)
   .get(isValid(idSchema), getExamById)
-  .put(isValid(updateExamSchema), updateExam)
-  .delete(isValid(idSchema), deleteExam);
+  .put(authorizeRole("admin"), isValid(updateExamSchema), updateExam)
+  .delete(authorizeRole("admin"), isValid(idSchema), deleteExam);
 
-router.get(
-  "/:examId/stats",
-  protect,
-  authorizeRole("admin"),
-  isValid(idSchema),
-  getExamStats
-);
+router.get("/:examId/stats", protect, isValid(idSchema), getExamStats);
 
 export default router;

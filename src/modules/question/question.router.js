@@ -13,16 +13,16 @@ import {
   updateQuestion,
 } from "./question.controller.js";
 import { isValid } from "../../middleware/validation.middleware.js";
-import { idSchema } from "../exam/exam.validation.js";
+
 
 const router = Router({ mergeParams: true });
 
-// Create Question And Get
+// Create Question And Get All Questions By Exam
 router
   .route("/")
   .all(protect)
   .post(authorizeRole("admin"), isValid(createQuestionSchema), createQuestion)
-  .get(isValid(idSchema), getQuestionsByExam);
+  .get(getQuestionsByExam);
 
 router
   .route("/:questionId")

@@ -71,9 +71,10 @@ export const getQuestionsByExam = asyncHandler(async (req, res, next) => {
   if (difficulty) filter.difficulty = difficulty;
   if (questionType) filter.questionType = questionType;
 
-  if (questionText) filter.questionText = { $regex: questionText, option: "i" };
+  if (questionText)
+    filter.questionText = { $regex: questionText, $options: "i" };
   if (points) filter.points = {};
-
+  console.log(filter);
   const questions = await Question.find(filter)
     .populate("exam", "subject level duration")
     .sort({ createdAt: -1 })
@@ -99,7 +100,7 @@ export const getQuestionsByExam = asyncHandler(async (req, res, next) => {
 });
 
 // Get Question by ID
-export const getQuestionById = asyncHandler(async (req, res) => {
+export const getQuestionById = asyncHandler(async (req, res, next) => {
   const { examId, questionId } = req.params;
   // Check if exam exists
   const exam = await Exam.findById(examId);

@@ -18,7 +18,7 @@ export const TokenService = {
       user: user._id,
       isValid: true,
       agent,
-      expireAt: generateExpiryDate(5, "minutes"),
+      expireAt: generateExpiryDate(2, "days"),
     });
     return token;
   },
