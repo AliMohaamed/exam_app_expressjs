@@ -26,7 +26,19 @@ const examSchema = new Schema(
       required: true,
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret.id;
+        return ret;
+      },
+    },
+    toObject: {
+      virtuals: true,
+    },
+  }
 );
 
 // Virtual populate
