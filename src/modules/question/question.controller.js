@@ -4,6 +4,7 @@ import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
 import sendResponse from "../../utils/response.js";
 import { QuestionService } from "../../services/question.service.js";
+import { isOwnerOrAdmin } from "../../utils/auth/auth.js";
 
 // Create Question - Admin only
 export const createQuestion = asyncHandler(async (req, res, next) => {
@@ -25,12 +26,10 @@ export const createQuestion = asyncHandler(async (req, res, next) => {
   }
 
   // Check if user is the creator of the exam or admin
-  if (
-    exam.createdBy.toString() !== req.user._id.toString() &&
-    req.user.role !== "admin"
-  ) {
+  if (!isOwnerOrAdmin(req.user, exam.createdBy)) {
     throw new ApiError(403, "Not authorized to add questions to this exam");
   }
+
   const question = await Question.create({
     questionText,
     questionType,
@@ -154,5 +153,33 @@ export const deleteQuestion = asyncHandler(async (req, res) => {
   sendResponse(res, {
     statusCode: 200,
     message,
+  });
+});
+
+// Bulk Create Questions - Admin only
+export const bulkCreateQuestions = asyncHandler(async (req, res) => {
+  const { examId } = req.params;
+  const { questions } = req.body;
+
+  // Check if exam exists
+  const exam = await Exam.findById(examId);
+  if (!exam) return next(new ApiError(404, "Exam not found"));
+
+  // Check if user is the creator of the exam or admin
+  if (!isOwnerOrAdmin(req.user, exam.createdBy)) {
+    throw new ApiError(403, "Not authorized to add questions to this exam");
+  }
+  const questionsWithExam = questions.map((question) => ({
+    ...question,
+    exam: examId,
+  }));
+  console.log(questionsWithExam);
+
+  const createdQuestions = await Question.insertMany(questionsWithExam);
+
+  sendResponse(res, {
+    statusCode: 201,
+    data: createdQuestions,
+    message: `${createdQuestions.length} questions created successfully`,
   });
 });

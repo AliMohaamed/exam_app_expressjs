@@ -11,7 +11,7 @@ import {
 } from "./exam.controller.js";
 import {
   createExamSchema,
-  idSchema,
+  examIdSchema,
   updateExamSchema,
 } from "./exam.validation.js";
 import questionRouter from "../question/question.router.js";
@@ -21,9 +21,10 @@ const router = Router();
 //* Question
 router.use("/:examId/question", questionRouter);
 
-//* @route POST /api/exam
-//* @desc Create a new exam
-//* @access Private (Admin only)
+// @route POST /api/exam
+// @desc Create a new exam
+// @access Private (Admin only)
+
 router
   .route("/")
   .all(protect)
@@ -33,10 +34,10 @@ router
 router
   .route("/:examId")
   .all(protect)
-  .get(isValid(idSchema), getExamById)
+  .get(isValid(examIdSchema), getExamById)
   .put(authorizeRole("admin"), isValid(updateExamSchema), updateExam)
-  .delete(authorizeRole("admin"), isValid(idSchema), deleteExam);
+  .delete(authorizeRole("admin"), isValid(examIdSchema), deleteExam);
 
-router.get("/:examId/stats", protect, isValid(idSchema), getExamStats);
+router.get("/:examId/stats", protect, isValid(examIdSchema), getExamStats);
 
 export default router;

@@ -8,6 +8,8 @@ import {
   updateOne,
 } from "../../utils/handlers/handlersFactory.js";
 import sendResponse from "../../utils/response.js";
+import { Exam } from "../../../DB/models/exam.model.js";
+import { ExamAttempt } from "../../../DB/models/examAttempt .js";
 
 export const addStudent = createOne(User, {
   isConfirmed: true,
@@ -33,3 +35,89 @@ export const getStudentById = getById(User);
 export const updateStudent = updateOne(User);
 
 export const deleteStudent = deleteOne(User);
+
+/*************************************************************/
+// @desc    Get available exams for student
+// @route   GET /api/student/exams/available
+// @access  Private (Student)
+export const getAvailableExams = asyncHandler(async (req, res) => {
+  const studentId = req.user._id;
+  const studentLevel = req.user.level;
+
+  const completedExamIds = await ExamAttempt.distinct("exam", {
+    status: "submitted",
+    student: studentId,
+  });
+
+  const availableExams = await Exam.find({
+    level: studentLevel,
+    _id: { $nin: completedExamIds },
+  })
+    .select("title duration level")
+    .lean();
+
+  sendResponse(res, {
+    message: "All Exams Available For This Student",
+    data: {
+      total: availableExams.length,
+      exams: availableExams,
+    },
+  });
+});
+
+// @desc    Start an exam
+// @route   POST /api/student/exams/:examId/start
+// @access  Private (Student)
+export const startExam = asyncHandler(async (req, res, next) => {
+  const { examId } = req.params;
+  const studentId = req.user._id;
+  const studentLevel = req.user.level;
+
+  const exam = await Exam.findOne({
+    _id: examId,
+    level: studentLevel,
+    questions: { $exists: true, $not: { $size: 0 } },
+  });
+
+  if (!exam) {
+    return next(
+      new ApiError(404, "This exam is not available or has no questions")
+    );
+  }
+
+  const existingAttempt = await ExamAttempt.findOne({
+    student: studentId,
+    exam: examId,
+  });
+
+  if (existingAttempt) {
+    return next(
+      new ApiError(400, "You already started or submitted this exam")
+    );
+  }
+
+  const startTime = new Date();
+  const endTime = new Date(startTime.getTime() + exam.duration * 60 * 1000);
+
+  const attempt = await ExamAttempt.create({
+    student: studentId,
+    exam: examId,
+    startTime,
+    endTime,
+  });
+
+  sendResponse(res, {
+    message: "Exam started successfully",
+    data: {
+      attemptId: attempt._id,
+      exam: {
+        subject: exam.subject,
+        duration: exam.duration,
+        questionsCount: exam.questions.length,
+        totalMarks: exam.questions.reduce((total, q) => total + q.points, 0),
+        startTime,
+        endTime,
+      },
+    },
+  });
+});

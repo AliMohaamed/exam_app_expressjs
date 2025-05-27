@@ -27,7 +27,7 @@ export const createExamSchema = Joi.object({
 }).required();
 
 // Get Exam by ID Validation Schema
-export const idSchema = Joi.object({
+export const examIdSchema = Joi.object({
   examId: Joi.string().custom(isValidObjectId).required().messages({
     "string.custom": "Invalid exam ID format",
     "any.required": "Exam ID is required",

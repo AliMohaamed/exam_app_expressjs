@@ -4,7 +4,9 @@ import {
   addStudent,
   deleteStudent,
   getAllStudent,
+  getAvailableExams,
   getStudentById,
+  startExam,
   updateStudent,
 } from "./student.controller.js";
 import { isValid } from "../../middleware/validation.middleware.js";
@@ -13,6 +15,7 @@ import {
   deleteStudentSchema,
   updateStudentSchema,
 } from "./student.validation.js";
+import { examIdSchema } from "../exam/exam.validation.js";
 
 const router = Router();
 
@@ -30,7 +33,17 @@ router
   .put(isValid(updateStudentSchema), updateStudent)
   .delete(isValid(deleteStudentSchema), deleteStudent);
 
-// Get All Student
-// router.get();
+// EXAM
+router.get(
+  "/exams/available",
+  protect,
+  authorizeRole("student"),
+  getAvailableExams
+);
+
+router
+  .route("/exams/:examId/start")
+  .all(protect, authorizeRole("student"))
+  .get(isValid(examIdSchema), startExam);
 
 export default router;
