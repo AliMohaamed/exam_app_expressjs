@@ -53,8 +53,8 @@ export const getAvailableExams = asyncHandler(async (req, res) => {
     level: studentLevel,
     _id: { $nin: completedExamIds },
   })
-    .select("title duration level")
-    .lean();
+    .select("subject description level duration createdBy")
+    .populate("createdBy", "name -_id");
 
   sendResponse(res, {
     message: "All Exams Available For This Student",
@@ -72,17 +72,19 @@ export const startExam = asyncHandler(async (req, res, next) => {
   const { examId } = req.params;
   const studentId = req.user._id;
   const studentLevel = req.user.level;
-
   const exam = await Exam.findOne({
     _id: examId,
     level: studentLevel,
-    questions: { $exists: true, $not: { $size: 0 } },
-  });
+  }).populate("questions");
 
   if (!exam) {
     return next(
       new ApiError(404, "This exam is not available or has no questions")
     );
+  }
+
+  if (!exam.questions || exam.questions.length === 0) {
+    return next(new ApiError(400, "This exam has no questions yet"));
   }
 
   const existingAttempt = await ExamAttempt.findOne({
@@ -91,9 +93,9 @@ export const startExam = asyncHandler(async (req, res, next) => {
   });
 
   if (existingAttempt) {
-    return next(
-      new ApiError(400, "You already started or submitted this exam")
-    );
+    return existingAttempt.status === "in-progress"
+      ? next(new ApiError(400, "You already started this exam"))
+      : next(new ApiError(400, "Already submitted this exam"));
   }
 
   const startTime = new Date();
@@ -105,8 +107,8 @@ export const startExam = asyncHandler(async (req, res, next) => {
     startTime,
     endTime,
   });
-
   sendResponse(res, {
+    statusCode: 201,
     message: "Exam started successfully",
     data: {
       attemptId: attempt._id,

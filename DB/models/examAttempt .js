@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const answerSchema = new Schema({
   question: { type: Schema.Types.ObjectId, ref: "Question", required: true },
@@ -58,10 +58,13 @@ examAttemptSchema.virtual("isPassed").get(function () {
 // Pre middleware
 examAttemptSchema.pre("save", async function (next) {
   // calculate total
-  this.totalScore = this.answers.reduce((total, answer) => {
-    return total + (answer.pointsEarned || 0);
-  });
+  if (!this.answers && this.answers.length !== 0) {
+    this.totalScore = this.answers.reduce((total, answer) => {
+      return total + (answer.pointsEarned || 0);
+    });
+  }
   next();
 });
 
-export const ExamAttempt = mongoose.models.ExamAttempt;
+export const ExamAttempt =
+  mongoose.models.ExamAttempt || model("ExamAttempt", examAttemptSchema);

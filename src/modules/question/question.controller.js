@@ -173,7 +173,6 @@ export const bulkCreateQuestions = asyncHandler(async (req, res) => {
     ...question,
     exam: examId,
   }));
-  console.log(questionsWithExam);
 
   const createdQuestions = await Question.insertMany(questionsWithExam);
 

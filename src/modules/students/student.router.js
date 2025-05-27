@@ -33,7 +33,7 @@ router
   .put(isValid(updateStudentSchema), updateStudent)
   .delete(isValid(deleteStudentSchema), deleteStudent);
 
-// EXAM
+// ====================== EXAM ===================
 router.get(
   "/exams/available",
   protect,
@@ -44,6 +44,6 @@ router.get(
 router
   .route("/exams/:examId/start")
   .all(protect, authorizeRole("student"))
-  .get(isValid(examIdSchema), startExam);
+  .post(isValid(examIdSchema), startExam);
 
 export default router;
