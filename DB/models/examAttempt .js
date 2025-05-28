@@ -22,8 +22,11 @@ const examAttemptSchema = new Schema(
   {
     student: { type: Schema.Types.ObjectId, ref: "User", required: true },
     exam: { type: Schema.Types.ObjectId, ref: "Exam", required: true },
-    startTime: { type: Date, default: Date.now },
-    endTime: Date,
+    startTime: { type: Date, default: Date.now, required: true },
+    endTime: {
+      type: Date,
+      required: true,
+    },
     answers: [answerSchema],
     totalScore: {
       type: Number,
@@ -47,7 +50,17 @@ const examAttemptSchema = new Schema(
       min: 0,
     },
   },
-  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret.id;
+        return ret;
+      },
+    },
+    toObject: { virtuals: true },
+  }
 );
 
 // Do Student Passed or Failed
