@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authorizeRole, protect } from "../../middleware/auth.middleware.js";
 import { isValid } from "../../middleware/validation.middleware.js";
 import {
+  getAllAttempts,
   getAllResultsForStudent,
   getAvailableExams,
   getExamQuestions,
@@ -63,6 +64,6 @@ router.get(
  */
 
 // Get all available exams for an admin
-router.get("/attempts", protect, authorizeRole("admin"), getAvailableExams);
+router.get("/attempts", protect, authorizeRole("admin"), getAllAttempts);
 
 export default router;

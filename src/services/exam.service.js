@@ -1,5 +1,5 @@
 import { Exam } from "../../DB/models/exam.model.js";
-import { ExamAttempt } from "../../DB/models/examAttempt .js";
+import { ExamAttempt } from "../../DB/models/attempt.model.js";
 import { statsQuestion } from "../utils/question/questionUtils.js";
 
 export const ExamService = {

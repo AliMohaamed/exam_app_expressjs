@@ -51,6 +51,8 @@ export const getAllResultsForStudent = asyncHandler(async (req, res) => {
  * Admin Routes
  */
 
-export const getAllAttemptsForAdmin = asyncHandler(async (req, res) => {
-  const { status, minScore, maxScore, fromDate, toDate } = req.params;
+export const getAllAttempts = asyncHandler(async (req, res) => {
+  const { status, isPassed, minScore, maxScore, fromDate, toDate } = req.query;
+  const results = await AttemptService.getAllAttempts({ status });
+  res.json({ results });
 });

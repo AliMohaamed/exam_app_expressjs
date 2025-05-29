@@ -30,6 +30,9 @@ export const AuthService = {
     const user = await User.findOne({ email });
     if (!user) throw new ApiError(400, "Invalid email or password");
 
+    if (!user.isConfirmed)
+      throw new ApiError(400, "Account not activated, please check your email");
+
     const isMatch = checkPassword(password, user.password);
     if (!isMatch) throw new ApiError(400, "Invalid email or password");
 

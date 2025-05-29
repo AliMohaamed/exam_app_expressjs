@@ -1,5 +1,5 @@
 import { Exam } from "../../DB/models/exam.model.js";
-import { ExamAttempt } from "../../DB/models/examAttempt .js";
+import { ExamAttempt } from "../../DB/models/attempt.model.js";
 import { Question } from "../../DB/models/question.model.js";
 import ApiError from "../utils/error/ApiError.js";
 import { formatQuestions } from "../utils/formatUtils.js";
@@ -57,7 +57,6 @@ export const AttemptService = {
       },
     };
   },
-
   /**
    * Retrieves the questions for an exam attempt.
    * @param {Object} user - Mongoose document for Student.
@@ -102,7 +101,6 @@ export const AttemptService = {
       },
     };
   },
-
   /**
    * Submits the exam attempt with answers.
    * @param {Object} user - Mongoose document for Student.
@@ -110,7 +108,6 @@ export const AttemptService = {
    * @param {Array} answers - Array of submitted answers { questionId, answer }.
    * @returns {Object} The updated exam attempt with graded answers and score.
    * */
-
   async submitExam(user, attemptId, answers) {
     const attempt = await ExamAttempt.findOne({
       _id: attemptId,
@@ -137,7 +134,6 @@ export const AttemptService = {
     await attempt.save();
     return attempt;
   },
-
   /**
    * Auto-grades the submitted exam attempt.
    * @param {Object} attempt - Mongoose document for ExamAttempt (populated with exam).
@@ -200,14 +196,12 @@ export const AttemptService = {
     attempt.totalScore = totalScore;
     attempt.percentage = percentage;
   },
-
   /**
    * Retrieves the exam result for a specific attempt
    * @param {String} studentId - ID of the student.
    * @param {String} attemptId - ID of the exam attempt.
    * @return {Object} The exam result including attempt details and answers.
    * */
-
   async getExamResult(studentId, attemptId) {
     const attempt = await ExamAttempt.findOne({
       _id: attemptId,
@@ -237,13 +231,11 @@ export const AttemptService = {
       answers: attempt.answers,
     };
   },
-
   /**
    * Retrieves all exam results for a student.
    * @param {String} studentId - ID of the student.
    * @return {Array} List of exam results with attempt details and answers.
    * */
-
   async getAllResultsForStudent(studentId) {
     const attempts = await ExamAttempt.find({
       student: studentId,
@@ -270,5 +262,26 @@ export const AttemptService = {
       },
       answers: a.answers,
     }));
+  },
+  /* ==================Admin===================== */
+  async getAllAttempts(obj) {
+    const { status } = obj;
+    const filters = {};
+    if (status) filters.status = status;
+    const attempts = await ExamAttempt.find(filters)
+      .populate({
+        path: "exam",
+        select: "subject level duration",
+        populate: {
+          path: "createdBy",
+          select: "name -_id",
+        },
+      })
+      .populate("student", "name email level status profileImage.secure_url");
+
+    return {
+      totalAttempt: attempts.length,
+      attempts,
+    };
   },
 };
