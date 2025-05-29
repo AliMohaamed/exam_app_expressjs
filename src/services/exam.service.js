@@ -1,5 +1,6 @@
 import { Exam } from "../../DB/models/exam.model.js";
 import { ExamAttempt } from "../../DB/models/examAttempt .js";
+import { statsQuestion } from "../utils/question/questionUtils.js";
 
 export const ExamService = {
   /**
@@ -20,8 +21,24 @@ export const ExamService = {
       _id: { $nin: completedExamIds },
     })
       .select("subject description level duration createdBy")
-      .populate("createdBy", "name -_id");
+      .populate("createdBy", "name -_id")
+      .populate("questions", "questionType points difficulty");
 
-    return { total: exams.length, exams };
+    const data = exams
+      .filter((exam) => {
+        const { questions } = exam.toObject();
+        const stats = statsQuestion(questions);
+        return stats.totalQuestions > 0;
+      })
+      .map((exam) => {
+        const { questions, ...examWithoutQuestions } = exam.toObject();
+        const stats = statsQuestion(questions);
+        return {
+          ...examWithoutQuestions,
+          ...stats,
+        };
+      });
+
+    return { total: data.length, exams: data };
   },
 };

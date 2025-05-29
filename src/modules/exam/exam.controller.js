@@ -3,6 +3,7 @@ import { Question } from "../../../DB/models/question.model.js";
 import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
 import sendResponse from "../../utils/response.js";
+import { statsQuestion } from "../../utils/question/questionUtils.js";
 
 // Create Exam - Admin only
 export const createExam = asyncHandler(async (req, res, next) => {
@@ -113,25 +114,7 @@ export const getExamStats = asyncHandler(async (req, res, next) => {
   if (!exam) {
     return next(new ApiError(404, "Exam not found"));
   }
-  const stats = {
-    totalQuestions: exam.questions.length,
-    questionsByType: {},
-    questionsByDifficulty: {},
-    totalPoints: 0,
-  };
-
-  exam.questions.forEach((question) => {
-    // Count by type
-    stats.questionsByType[question.questionType] =
-      (stats.questionsByType[question.questionType] || 0) + 1;
-
-    // Count by difficulty
-    stats.questionsByDifficulty[question.difficulty] =
-      (stats.questionsByDifficulty[question.difficulty] || 0) + 1;
-
-    // Sum total points
-    stats.totalPoints += question.points;
-  });
+  const stats = statsQuestion(exam.questions);
 
   sendResponse(res, {
     data: { stats, exam },
