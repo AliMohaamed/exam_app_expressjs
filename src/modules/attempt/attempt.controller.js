@@ -46,3 +46,11 @@ export const getAllResultsForStudent = asyncHandler(async (req, res) => {
   const result = await AttemptService.getAllResultsForStudent(req.user._id);
   sendResponse(res, { message: "All Results For This Student", data: result });
 });
+
+/*
+ * Admin Routes
+ */
+
+export const getAllAttemptsForAdmin = asyncHandler(async (req, res) => {
+  const { status, minScore, maxScore, fromDate, toDate } = req.params;
+});

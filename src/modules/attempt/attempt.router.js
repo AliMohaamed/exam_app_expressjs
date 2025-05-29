@@ -16,8 +16,9 @@ const router = Router();
 
 // Student Routes
 
+// Get all available exams for a student
 router.get("/available", protect, authorizeRole("student"), getAvailableExams);
-
+// Start an exam
 router.post(
   "/:examId/start",
   protect,
@@ -25,7 +26,7 @@ router.post(
   isValid(examIdSchema),
   startExam
 );
-
+// Get questions for an exam attempt
 router.get(
   "/attempts/:attemptId/questions",
   protect,
@@ -33,7 +34,7 @@ router.get(
   isValid(getAttemptIdSchema),
   getExamQuestions
 );
-
+// Submit an exam attempt
 router.post(
   "/attempts/:attemptId/submit",
   protect,
@@ -41,7 +42,7 @@ router.post(
   isValid(examSubmitSchema),
   submitExam
 );
-
+// Get the result of an exam attempt
 router.get(
   "/attempts/:attemptId/result",
   protect,
@@ -49,11 +50,19 @@ router.get(
   isValid(getAttemptIdSchema),
   getExamResult
 );
+// Get all results for a student
 router.get(
   "/results",
   protect,
   authorizeRole("student"),
   getAllResultsForStudent
 );
+
+/*
+ * Admin Routes
+ */
+
+// Get all available exams for an admin
+router.get("/attempts", protect, authorizeRole("admin"), getAvailableExams);
 
 export default router;

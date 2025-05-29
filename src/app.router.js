@@ -19,21 +19,30 @@ export const appRouter = (app, express) => {
   }
 
   // Routes
-
+  app.get("/", (req, res) => {
+    res.status(200).json({
+      message: "Welcome to the Exam Management System API",
+      version: "1.0.0",
+    });
+  });
   // Auth
-  app.use("/api/auth", authRouter);
+  app.use("/api/v1/auth", authRouter);
 
   // Student
-  app.use("/api/student", studentRouter);
+  app.use("/api/v1/student", studentRouter);
 
   // Question
-  app.use("/api/exam", examRouter);
+  app.use("/api/v1/exam", examRouter);
 
   // Question
-  app.use("/api/question", questionRouter);
+  app.use("/api/v1/question", questionRouter);
 
   // Attempt
-  app.use("/api/student/exams", attemptRouter);
+  const prefixes = ["/api/v1/student/exams", "/api/v1/admin/exams"];
+
+  prefixes.forEach((prefix) => {
+    app.use(prefix, attemptRouter);
+  });
 
   // not found page router
   app.all("/{*any}", (req, res, next) => {
