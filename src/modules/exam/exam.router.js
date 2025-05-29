@@ -21,10 +21,6 @@ const router = Router();
 //* Question
 router.use("/:examId/question", questionRouter);
 
-// @route POST /api/exam
-// @desc Create a new exam
-// @access Private (Admin only)
-
 router
   .route("/")
   .all(protect)

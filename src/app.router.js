@@ -3,6 +3,7 @@ import authRouter from "./modules/auth/auth.router.js";
 import studentRouter from "./modules/students/student.router.js";
 import questionRouter from "./modules/question/question.router.js";
 import examRouter from "./modules/exam/exam.router.js";
+import attemptRouter from "./modules/attempt/attempt.router.js";
 import morgan from "morgan";
 import cors from "cors";
 import compression from "compression";
@@ -30,6 +31,9 @@ export const appRouter = (app, express) => {
 
   // Question
   app.use("/api/question", questionRouter);
+
+  // Attempt
+  app.use("/api/student/exams", attemptRouter);
 
   // not found page router
   app.all("/{*any}", (req, res, next) => {

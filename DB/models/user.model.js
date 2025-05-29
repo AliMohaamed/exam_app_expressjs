@@ -28,6 +28,9 @@ const userSchema = new Schema(
     level: {
       type: String,
       enum: ["beginner", "intermediate", "advanced"],
+      required: function () {
+        return this.role === "student";
+      },
     },
     phone: String,
     status: {

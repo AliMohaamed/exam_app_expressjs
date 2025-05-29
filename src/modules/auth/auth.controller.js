@@ -28,7 +28,6 @@ export const register = asyncHandler(async (req, res, next) => {
     ? sendResponse(res, {
         message:
           "Registration successful! Please check your email to activate your account.",
-        data: user,
       })
     : next(
         new ApiError(400, "User created but failed to send activation email")

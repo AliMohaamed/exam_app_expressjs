@@ -49,20 +49,3 @@ export const updateStudentSchema = Joi.object({
 export const deleteStudentSchema = Joi.object({
   id: Joi.string().custom(isValidObjectId).required(),
 }).required();
-
-// ====================== EXAM ===================
-export const getAttemptIdSchema = Joi.object({
-  attemptId: Joi.string().custom(isValidObjectId).required(),
-}).required();
-
-export const examSubmitSchema = Joi.object({
-  attemptId: Joi.string().custom(isValidObjectId).required(),
-  answers: Joi.array()
-    .items(
-      Joi.object({
-        questionId: Joi.string().custom(isValidObjectId).required(),
-        answer: Joi.alternatives().try(Joi.string(), Joi.boolean()).required(),
-      })
-    )
-    .required(),
-}).required();

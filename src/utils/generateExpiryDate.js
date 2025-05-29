@@ -42,40 +42,10 @@ export function generateExpiryDate(amount, unit) {
   }
 }
 
-// Examples to use
-/*
-generateExpiryDate(5, "minutes");   // after 5 minutes
-generateExpiryDate(1, "hours");     // after 1 hour
-generateExpiryDate(2, "days");      // after 2 days
-generateExpiryDate(3, "weeks");     // after 3 weeks
-generateExpiryDate(1, "months");    // (e.g., from May 13 to June 13)
-generateExpiryDate(1, "years");     // (from 2025 to 2026)
-*/
-
-// Manual
-/*
-export function generateExpiryDate(amount, unit) {
-  if (typeof amount !== "number" || amount <= 0) {
-    throw new Error("Amount must be a positive number.");
-  }
-
-  const unitsInMilliseconds = {
-    seconds: 1000,
-    minutes: 60 * 1000,
-    hours: 60 * 60 * 1000,
-    days: 24 * 60 * 60 * 1000,
-    weeks: 7 * 24 * 60 * 60 * 1000,
-    months: 30 * 24 * 60 * 60 * 1000, // Approximate
-    years: 365 * 24 * 60 * 60 * 1000, // Approximate
-  };
-
-  const multiplier = unitsInMilliseconds[unit];
-
-  if (!multiplier) {
-    throw new Error(`Invalid unit provided: ${unit}`);
-  }
-
-  return new Date(Date.now() + amount * multiplier);
-}
-
- */
+export const isExamExpired = (attempt) => {
+  const now = Date.now();
+  const endTime =
+    attempt.endTime ||
+    new Date(attempt.startTime.getTime() + attempt.exam.duration * 60 * 1000);
+  return now > endTime;
+};
