@@ -99,4 +99,15 @@ export const getStudentById = asyncHandler(async (req, res, next) => {
 
 export const updateStudent = updateOne(User);
 
-export const deleteStudent = deleteOne(User);
+export const deleteStudent = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const student = await User.findByIdAndDelete(id);
+  if (!student)
+    return next(new ApiError(400, `No student with this id: ${id}`));
+
+  await ExamAttempt.deleteMany({
+    student: student._id,
+  });
+
+  sendResponse(res, { message: "Deleted Student Successfully With Attempts" });
+});
