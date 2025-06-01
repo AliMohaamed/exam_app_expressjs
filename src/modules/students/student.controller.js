@@ -1,14 +1,10 @@
 import { User } from "../../../DB/models/user.model.js";
 import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import ApiError from "../../utils/error/ApiError.js";
-import {
-  createOne,
-  deleteOne,
-  getById,
-  updateOne,
-} from "../../utils/handlers/handlersFactory.js";
+import { createOne, updateOne } from "../../utils/handlers/handlersFactory.js";
 import sendResponse from "../../utils/response.js";
 import { ExamAttempt } from "../../../DB/models/attempt.model.js";
+import APIFeatures from "../../utils/apiFeatures.js";
 
 export const addStudent = createOne(User, {
   isConfirmed: true,
@@ -17,20 +13,28 @@ export const addStudent = createOne(User, {
 
 export const getAllStudent = asyncHandler(async (req, res, next) => {
   // 1 All Students that are confirmed
-  const students = await User.find({
-    role: "student",
-    isConfirmed: true,
-  })
-    .select("-isConfirmed -password -activationCode -otp -otpExpires")
-    .lean(); // Faster query with lean()
+  const features = new APIFeatures(
+    User.find({
+      role: "student",
+      isConfirmed: true,
+    }).select("-isConfirmed -password -activationCode -otp -otpExpires"),
+    req.query
+  )
+    .search(["name", "email"])
+    .sort()
+    .paginate();
 
-  if (!students.length) {
+  const students = await features.query.lean();
+
+  if (!students || students.length === 0) {
     return next(new ApiError(400, "No Students"));
   }
 
+  const studentIds = students.map((s) => s._id);
   // 2️ All Exam Attempts that are submitted
   const attempts = await ExamAttempt.find({
     status: "submitted",
+    student: { $in: studentIds },
   })
     .select("-__v")
     .populate({
@@ -62,10 +66,14 @@ export const getAllStudent = asyncHandler(async (req, res, next) => {
     };
   });
 
-  // 5️ Send response
+  // 5 Send response
   sendResponse(res, {
     message: "All Students",
-    data: { results: data.length, students: data },
+    data: {
+      results: data.length,
+      page: parseInt(req.query.page) || 1,
+      students: data,
+    },
   });
 });
 
@@ -86,6 +94,10 @@ export const getStudentById = asyncHandler(async (req, res, next) => {
         path: "createdBy",
         select: "name -_id",
       },
+    })
+    .populate({
+      path: "answers.question",
+      select: "questionText points questionType -_id",
     })
     .lean();
 

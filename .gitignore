@@ -2,6 +2,7 @@ DB/models/questionAndExamModelAdvanced.js
 src/advancedusingAi.js
 src/advancedControllerAI.js
 seedingData.js
+src/utils/queryHelperAdvanced.js
 note.txt
 # Logs
 logs

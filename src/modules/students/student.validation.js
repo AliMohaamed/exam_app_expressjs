@@ -42,8 +42,7 @@ export const updateStudentSchema = Joi.object({
       new RegExp("^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-]).{8,}$")
     )
     .optional(),
-  // level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
-  level: Joi.string().optional(),
+  level: Joi.string().valid("beginner", "intermediate", "advanced").optional(),
 }).required();
 
 export const deleteStudentSchema = Joi.object({

@@ -60,6 +60,7 @@ const examAttemptSchema = new Schema(
       },
     },
     toObject: { virtuals: true },
+    // strictQuery: true,
   }
 );
 
@@ -76,6 +77,7 @@ examAttemptSchema.pre("save", async function (next) {
       return total + (answer.pointsEarned || 0);
     });
   }
+
   next();
 });
 

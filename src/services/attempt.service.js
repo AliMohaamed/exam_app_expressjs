@@ -4,7 +4,7 @@ import { Question } from "../../DB/models/question.model.js";
 import ApiError from "../utils/error/ApiError.js";
 import { formatQuestions } from "../utils/formatUtils.js";
 import { isExamExpired } from "../utils/generateExpiryDate.js";
-
+import APIFeatures from "../utils/apiFeatures.js";
 export const AttemptService = {
   /**
    * Retrieves all available exams for a student.
@@ -264,11 +264,10 @@ export const AttemptService = {
     }));
   },
   /* ==================Admin===================== */
-  async getAllAttempts(obj) {
-    const { status } = obj;
-    const filters = {};
-    if (status) filters.status = status;
-    const attempts = await ExamAttempt.find(filters)
+  async getAllAttempts(queryParams) {
+    let query = ExamAttempt.find({
+      status: { $in: ["submitted", "auto-submitted"] },
+    })
       .populate({
         path: "exam",
         select: "subject level duration",
@@ -278,6 +277,13 @@ export const AttemptService = {
         },
       })
       .populate("student", "name email level status profileImage.secure_url");
+
+    // Apply APIFeatures
+    const features = new APIFeatures(query, queryParams);
+
+    const attempts = await features.query;
+
+    // const total = await ExamAttempt.find(filter)
 
     return {
       totalAttempt: attempts.length,
