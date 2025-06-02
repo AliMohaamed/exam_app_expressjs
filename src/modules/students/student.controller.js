@@ -12,14 +12,18 @@ export const addStudent = createOne(User, {
 });
 
 export const getAllStudent = asyncHandler(async (req, res, next) => {
+  const baseQuery = User.find({ role: "student", isConfirmed: true }).select(
+    "-isConfirmed -password -activationCode -otp -otpExpires"
+  );
+
+  const featuresForCount = new APIFeatures(baseQuery, req.query)
+    .filter()
+    .search(["name", "email"]);
+
+  const totalStudents = await featuresForCount.query.clone().countDocuments();
+
   // 1 All Students that are confirmed
-  const features = new APIFeatures(
-    User.find({
-      role: "student",
-      isConfirmed: true,
-    }).select("-isConfirmed -password -activationCode -otp -otpExpires"),
-    req.query
-  )
+  const features = new APIFeatures(baseQuery, req.query)
     .search(["name", "email"])
     .sort()
     .paginate();
@@ -72,6 +76,7 @@ export const getAllStudent = asyncHandler(async (req, res, next) => {
     data: {
       results: data.length,
       page: parseInt(req.query.page) || 1,
+      totalPages: Math.ceil(totalStudents / 10),
       students: data,
     },
   });
