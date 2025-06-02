@@ -69,14 +69,23 @@ export const login = asyncHandler(async (req, res, next) => {
   // change user status to online and save user in db
   user.status = "online";
   await user.save();
-  return res.status(200).json({ message: "Login Successfully", token });
+  return res.status(200).json({
+    message: "Login Successfully",
+    token,
+    user: {
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+    },
+  });
 });
 
 // Logout
 export const logout = asyncHandler(async (req, res, next) => {
   const tokenDB = await Token.findOneAndUpdate(
     { token: req.token, isValid: true },
-    { isValid: false },
+    { isValid: false, status: "offline" },
     { new: true }
   );
   if (!tokenDB)
