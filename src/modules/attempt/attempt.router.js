@@ -68,8 +68,8 @@ router.get(
 router.get("/attempts", protect, authorizeRole("admin"), getAllAttempts);
 router.get(
   "/attempts/export-excel",
-  // protect,
-  // authorizeRole("admin"),
+  protect,
+  authorizeRole("admin"),
   exportAttemptsToExcel
 );
 
