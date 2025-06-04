@@ -72,7 +72,7 @@ examAttemptSchema.virtual("isPassed").get(function () {
 // Pre middleware
 examAttemptSchema.pre("save", async function (next) {
   // calculate total
-  if (!this.answers && this.answers.length !== 0) {
+  if (this.answers && this.answers.length !== 0) {
     this.totalScore = this.answers.reduce((total, answer) => {
       return total + (answer.pointsEarned || 0);
     });

@@ -3,6 +3,7 @@ import { Exam } from "../../../DB/models/exam.model.js";
 import { AttemptService } from "../../services/attempt.service.js";
 import { ExamService } from "../../services/exam.service.js";
 import APIFeatures from "../../utils/apiFeatures.js";
+import ApiError from "../../utils/error/ApiError.js";
 import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import sendResponse from "../../utils/response.js";
 
@@ -53,83 +54,96 @@ export const getAllResultsForStudent = asyncHandler(async (req, res) => {
 /*
  * Admin Routes
  */
-export const getAllAttempts = asyncHandler(async (req, res) => {
-const results = await AttemptService.getAllAttempts(req.query);
-  res.json({ results });
+// export const getAllAttempts = asyncHandler(async (req, res) => {
+// const results = await AttemptService.getAllAttempts(req.query);
+//   res.json({ results });
+// });
+
+export const getAllAttempts = asyncHandler(async (req, res, next) => {
+  const { q, subject, student, status, isPassed, fromDate, toDate } = req.query;
+
+  let matchConditions = {};
+
+  if (status) matchConditions.status = status;
+
+  if (isPassed !== undefined) {
+    matchConditions.percentage = {
+      $gte: isPassed === "true" ? 60 : 0,
+      $lt: isPassed === "true" ? 100 : 60,
+    };
+  }
+
+  if (fromDate || toDate) {
+    matchConditions.createdAt = {};
+    if (fromDate) matchConditions.createdAt.$gte = new Date(fromDate);
+    if (toDate) matchConditions.createdAt.$lte = new Date(toDate);
+  }
+
+  const pipeline = [
+    {
+      $lookup: {
+        from: "exams",
+        localField: "exam",
+        foreignField: "_id",
+        as: "exam",
+      },
+    },
+    { $unwind: "$exam" },
+    {
+      $lookup: {
+        from: "users",
+        localField: "student",
+        foreignField: "_id",
+        as: "student",
+      },
+    },
+    { $unwind: "$student" },
+    { $match: matchConditions },
+  ];
+
+  if (q) {
+    const regex = new RegExp(q, "i");
+    pipeline.push({
+      $match: {
+        $or: [{ "student.name": regex }, { "exam.subject": regex }],
+      },
+    });
+  }
+
+  // get paginated results
+  const apiFeatures = new APIFeatures(
+    ExamAttempt.aggregate(pipeline),
+    req.query
+  ).paginate();
+
+  const results = await apiFeatures.query;
+
+  // get total exams count from same conditions
+  const examIdSetPipeline = [...pipeline,
+    {
+      $group: {
+        _id: "$exam._id"
+      }
+    },
+    {
+      $count: "totalExams"
+    },
+  ];
+
+  const totalExamsResult = await ExamAttempt.aggregate(examIdSetPipeline);
+  const totalExams = totalExamsResult[0]?.totalExams || 0;
+
+  if (!results || results.length === 0)
+    return next(new ApiError(404, "No Attempts"));
+
+  sendResponse(res, {
+    message: "Exam Attempts Retrieved Successfully",
+    data: {
+      totalAttempts: results.length,
+      totalExams, // ✅ added here
+      page: parseInt(req.query.page) || 1,
+      attempts: results,
+    },
+  });
 });
 
-// export const getAllAttempts = asyncHandler(async (req, res) => {
-//   const { subject, student, status, isPassed, fromDate, toDate } = req.query;
-
-//   let matchConditions = {};
-
-//   if (status) matchConditions.status = status;
-//   if (isPassed !== undefined)
-//     matchConditions.percentage = {
-//       $gte: isPassed === "true" ? 60 : 0,
-//       $lt: isPassed === "true" ? 100 : 60,
-//     };
-
-//   if (fromDate || toDate) {
-//     matchConditions.createdAt = {};
-//     if (fromDate) matchConditions.createdAt.$gte = new Date(fromDate);
-//     if (toDate) matchConditions.createdAt.$lte = new Date(toDate);
-//   }
-
-//   const pipeline = [
-//     {
-//       $lookup: {
-//         from: "exams",
-//         localField: "exam",
-//         foreignField: "_id",
-//         as: "exam",
-//       },
-//     },
-//     { $unwind: "$exam" },
-//     {
-//       $lookup: {
-//         from: "users", // Assuming "users" is the collection for students
-//         localField: "student", // foreign key in ExamAttempt
-//         foreignField: "_id", // primary key in User
-//         as: "student", // alias for the joined data
-//       },
-//     },
-//     { $unwind: "$student" },
-
-//     { $match: matchConditions },
-//   ];
-
-//   if (subject) {
-//     pipeline.push({
-//       $match: {
-//         "exam.subject": { $regex: subject, $options: "i" },
-//       },
-//     });
-//   }
-
-//   if (student) {
-//     pipeline.push({
-//       $match: {
-//         "student.name": { $regex: student, $options: "i" },
-//       },
-//     });
-//   }
-
-//   pipeline.push({ $sort: { createdAt: -1 } });
-
-//   // Apply APIFeatures
-//   const apiFeatures = new APIFeatures(
-//     ExamAttempt.aggregate(pipeline),
-//     req.query
-//   ).paginate();
-
-//   const results = await apiFeatures.query;
-
-//   sendResponse(res, {
-//     message: "Filtered Exam Attempts Retrieved Successfully",
-//     data: {
-//       totalAttempts: results.length,
-//       attempts: results,
-//     },
-//   });
-// });

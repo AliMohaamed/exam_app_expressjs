@@ -19,6 +19,7 @@ export const getAllStudent = asyncHandler(async (req, res, next) => {
   const featuresForCount = new APIFeatures(baseQuery, req.query)
     .filter()
     .search(["name", "email"]);
+  console.log(featuresForCount);
 
   const totalStudents = await featuresForCount.query.clone().countDocuments();
 
