@@ -98,6 +98,11 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
       },
     },
     { $unwind: "$student" },
+    {
+      $addFields: {
+        isPassed: { $gte: ["$percentage", 60] },
+      },
+    },
     { $match: matchConditions },
   ];
 
