@@ -128,7 +128,10 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
 
   const results = await apiFeatures.query;
   let totalPercentage = results.reduce((sum, cur) => sum + cur.percentage, 0);
-  let avgScore = results.length > 0 ? totalPercentage / results.length : 0;
+  let avgScore =
+    results.length > 0
+      ? Number((totalPercentage / results.length).toFixed(2))
+      : 0;
 
   // get total exams count from same conditions
   const examIdSetPipeline = [
