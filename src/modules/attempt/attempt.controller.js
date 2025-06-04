@@ -79,7 +79,8 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
     if (toDate) matchConditions.createdAt.$lte = new Date(toDate);
   }
 
-  const pipeline = [
+  // Basic pipeline without pagination
+  const basePipeline = [
     {
       $lookup: {
         from: "exams",
@@ -108,74 +109,78 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
 
   if (q) {
     const regex = new RegExp(q, "i");
-    pipeline.push({
+    basePipeline.push({
       $match: {
         $or: [{ "student.name": regex }, { "exam.subject": regex }],
       },
     });
   }
 
-  // total count before pagination
-  const countPipeline = [...pipeline, { $count: "total" }];
-  const totalResult = await ExamAttempt.aggregate(countPipeline);
-  const totalAttemptsCount = totalResult[0]?.total || 0;
-
-  // pagination logic
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const totalPages = Math.ceil(totalAttemptsCount / limit);
-
-  // get paginated results
-  const apiFeatures = new APIFeatures(
-    ExamAttempt.aggregate(pipeline),
-    req.query
-  ).paginate();
-
-  const results = await apiFeatures.query;
-  let totalPercentage = results.reduce((sum, cur) => sum + cur.percentage, 0);
-  let avgScore =
-    results.length > 0
-      ? Number((totalPercentage / results.length).toFixed(2))
-      : 0;
-
-  // get total exams count from same conditions
-  const examIdSetPipeline = [
-    ...pipeline,
+  // ✅ 1. Statistics based on all matching results
+  const statsData = await ExamAttempt.aggregate([
+    ...basePipeline,
     {
       $group: {
-        _id: "$exam._id",
+        _id: null,
+        totalAttempts: { $sum: 1 },
+        totalPercentage: { $sum: "$percentage" },
+        studentIds: { $addToSet: "$student._id" },
+        examIds: { $addToSet: "$exam._id" },
       },
     },
     {
-      $count: "totalExams",
+      $project: {
+        _id: 0,
+        totalAttempts: 1,
+        avgScore: {
+          $cond: [
+            { $eq: ["$totalAttempts", 0] },
+            0,
+            {
+              $round: [{ $divide: ["$totalPercentage", "$totalAttempts"] }, 2],
+            },
+          ],
+        },
+        totalStudents: { $size: "$studentIds" },
+        totalExams: { $size: "$examIds" },
+      },
     },
-  ];
+  ]);
 
-  const totalExamsResult = await ExamAttempt.aggregate(examIdSetPipeline);
-  const totalExams = totalExamsResult[0]?.totalExams || 0;
+  const {
+    totalAttempts = 0,
+    avgScore = 0,
+    totalStudents = 0,
+    totalExams = 0,
+  } = statsData[0] || {};
 
-  // total students
-  const studentIdSetPipeline = [
-    ...pipeline,
-    { $group: { _id: "$student._id" } },
-    { $count: "totalStudents" },
-  ];
-  const totalStudentsResult = await ExamAttempt.aggregate(studentIdSetPipeline);
-  const totalStudents = totalStudentsResult[0]?.totalStudents || 0;
+  // ✅ 2. Pagination logic
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const totalPages = Math.ceil(totalAttempts / limit);
 
-  if (!results || results.length === 0)
+  // ✅ 3. Paginated results
+  const paginatedResults = await ExamAttempt.aggregate([
+    ...basePipeline,
+    { $skip: skip },
+    { $limit: limit },
+  ]);
+
+  if (!paginatedResults || paginatedResults.length === 0)
     return next(new ApiError(404, "No Attempts"));
 
+  // ✅ 4. Response
   sendResponse(res, {
     message: "Exam Attempts Retrieved Successfully",
     data: {
-      totalAttempts: results.length,
-      totalPages,
+      totalAttempts,
       avgScore,
       totalExams,
       totalStudents,
-      page: parseInt(req.query.page) || 1,
-      attempts: results,
+      totalPages,
+      page,
+      attempts: paginatedResults,
     },
   });
 });
