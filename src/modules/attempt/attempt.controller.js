@@ -1,8 +1,7 @@
 import { ExamAttempt } from "../../../DB/models/attempt.model.js";
-import { Exam } from "../../../DB/models/exam.model.js";
 import { AttemptService } from "../../services/attempt.service.js";
 import { ExamService } from "../../services/exam.service.js";
-import APIFeatures from "../../utils/apiFeatures.js";
+import { generateAttemptsExcel } from "../../utils/attempt/exportAttemptsToExcel.js";
 import ApiError from "../../utils/error/ApiError.js";
 import { asyncHandler } from "../../utils/handlers/asyncHandler.js";
 import sendResponse from "../../utils/response.js";
@@ -54,134 +53,38 @@ export const getAllResultsForStudent = asyncHandler(async (req, res) => {
 /*
  * Admin Routes
  */
-// export const getAllAttempts = asyncHandler(async (req, res) => {
-// const results = await AttemptService.getAllAttempts(req.query);
-//   res.json({ results });
-// });
-
 export const getAllAttempts = asyncHandler(async (req, res, next) => {
-  const { q, subject, student, status, isPassed, fromDate, toDate } = req.query;
+  const data = await AttemptService.getAllAttemptsService(req.query);
 
-  let matchConditions = {};
-
-  if (status) matchConditions.status = status;
-
-  if (isPassed !== undefined) {
-    matchConditions.percentage = {
-      $gte: isPassed === "true" ? 60 : 0,
-      $lt: isPassed === "true" ? 100 : 60,
-    };
-  }
-
-  if (fromDate || toDate) {
-    matchConditions.createdAt = {};
-    if (fromDate) matchConditions.createdAt.$gte = new Date(fromDate);
-    if (toDate) matchConditions.createdAt.$lte = new Date(toDate);
-  }
-
-  // Basic pipeline without pagination
-  const basePipeline = [
-    {
-      $lookup: {
-        from: "exams",
-        localField: "exam",
-        foreignField: "_id",
-        as: "exam",
-      },
-    },
-    { $unwind: "$exam" },
-    {
-      $lookup: {
-        from: "users",
-        localField: "student",
-        foreignField: "_id",
-        as: "student",
-      },
-    },
-    { $unwind: "$student" },
-    {
-      $addFields: {
-        isPassed: { $gte: ["$percentage", 60] },
-      },
-    },
-    { $match: matchConditions },
-  ];
-
-  if (q) {
-    const regex = new RegExp(q, "i");
-    basePipeline.push({
-      $match: {
-        $or: [{ "student.name": regex }, { "exam.subject": regex }],
-      },
-    });
-  }
-
-  // ✅ 1. Statistics based on all matching results
-  const statsData = await ExamAttempt.aggregate([
-    ...basePipeline,
-    {
-      $group: {
-        _id: null,
-        totalAttempts: { $sum: 1 },
-        totalPercentage: { $sum: "$percentage" },
-        studentIds: { $addToSet: "$student._id" },
-        examIds: { $addToSet: "$exam._id" },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        totalAttempts: 1,
-        avgScore: {
-          $cond: [
-            { $eq: ["$totalAttempts", 0] },
-            0,
-            {
-              $round: [{ $divide: ["$totalPercentage", "$totalAttempts"] }, 2],
-            },
-          ],
-        },
-        totalStudents: { $size: "$studentIds" },
-        totalExams: { $size: "$examIds" },
-      },
-    },
-  ]);
-
-  const {
-    totalAttempts = 0,
-    avgScore = 0,
-    totalStudents = 0,
-    totalExams = 0,
-  } = statsData[0] || {};
-
-  // ✅ 2. Pagination logic
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const skip = (page - 1) * limit;
-  const totalPages = Math.ceil(totalAttempts / limit);
-
-  // ✅ 3. Paginated results
-  const paginatedResults = await ExamAttempt.aggregate([
-    ...basePipeline,
-    { $skip: skip },
-    { $limit: limit },
-  ]);
-
-  if (!paginatedResults || paginatedResults.length === 0)
-    return next(new ApiError(404, "No Attempts"));
-
-  // ✅ 4. Response
   sendResponse(res, {
     message: "Exam Attempts Retrieved Successfully",
-    data: {
-      totalAttempts,
-      totalResultsAttemptsInPage: paginatedResults.length,
-      avgScore,
-      totalExams,
-      totalStudents,
-      totalPages,
-      page,
-      attempts: paginatedResults,
-    },
+    data,
   });
+});
+
+// Export Excel
+export const exportAttemptsToExcel = asyncHandler(async (req, res, next) => {
+  const attempts = await ExamAttempt.find()
+    .populate("student", "name email level status")
+    .populate("exam", "subject description level duration")
+    .lean();
+
+  if (!attempts || attempts.length === 0) {
+    return next(new ApiError("No attempts found", 404));
+  }
+
+  // Generate Excel workbook
+  const workbook = await generateAttemptsExcel(attempts);
+
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader(
+    "Content-Disposition",
+    "attachment; filename=exam-attempts.xlsx"
+  );
+
+  await workbook.xlsx.write(res);
+  res.end();
 });

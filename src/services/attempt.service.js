@@ -5,6 +5,12 @@ import ApiError from "../utils/error/ApiError.js";
 import { formatQuestions } from "../utils/formatUtils.js";
 import { isExamExpired } from "../utils/generateExpiryDate.js";
 import APIFeatures from "../utils/apiFeatures.js";
+import {
+  buildBasePipeline,
+  buildMatchConditions,
+  buildStatsPipeline,
+  calculatePaginationParams,
+} from "../utils/attempt/attemptHelper.js";
 export const AttemptService = {
   /**
    * Retrieves all available exams for a student.
@@ -288,6 +294,57 @@ export const AttemptService = {
     return {
       totalAttempt: attempts.length,
       attempts,
+    };
+  },
+
+  async getAllAttemptsService(queryParams) {
+    const { q: searchQuery, status, isPassed, fromDate, toDate } = queryParams;
+
+    // Build filters
+    const matchConditions = buildMatchConditions({
+      status,
+      isPassed,
+      fromDate,
+      toDate,
+    });
+    const basePipeline = buildBasePipeline(matchConditions, searchQuery);
+
+    // Stats
+    const statsData = await ExamAttempt.aggregate(
+      buildStatsPipeline(basePipeline)
+    );
+    const {
+      totalAttempts = 0,
+      avgScore = 0,
+      totalStudents = 0,
+      totalExams = 0,
+    } = statsData[0] || {};
+
+    // Pagination
+    const { page, limit, skip } = calculatePaginationParams(queryParams);
+    const totalPages = Math.ceil(totalAttempts / limit);
+
+    // Paginated Results
+    const paginatedResults = await ExamAttempt.aggregate([
+      ...basePipeline,
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    if (!paginatedResults || paginatedResults.length === 0) {
+      next(new ApiError(404, "No Attempts"));
+      return;
+    }
+
+    return {
+      totalAttempts,
+      avgScore,
+      totalStudents,
+      totalExams,
+      totalPages,
+      page,
+      totalResultsAttemptsInPage: paginatedResults.length,
+      attempts: paginatedResults,
     };
   },
 };

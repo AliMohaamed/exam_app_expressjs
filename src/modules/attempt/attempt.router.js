@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authorizeRole, protect } from "../../middleware/auth.middleware.js";
 import { isValid } from "../../middleware/validation.middleware.js";
 import {
+  exportAttemptsToExcel,
   getAllAttempts,
   getAllResultsForStudent,
   getAvailableExams,
@@ -65,5 +66,11 @@ router.get(
 
 // Get all available exams for an admin
 router.get("/attempts", protect, authorizeRole("admin"), getAllAttempts);
+router.get(
+  "/attempts/export-excel",
+  // protect,
+  // authorizeRole("admin"),
+  exportAttemptsToExcel
+);
 
 export default router;
