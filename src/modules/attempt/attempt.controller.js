@@ -175,6 +175,7 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
     message: "Exam Attempts Retrieved Successfully",
     data: {
       totalAttempts,
+      totalResultsAttemptsInPage: paginatedResults.length,
       avgScore,
       totalExams,
       totalStudents,
