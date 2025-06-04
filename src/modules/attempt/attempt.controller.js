@@ -110,6 +110,16 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
     });
   }
 
+  // total count before pagination
+  const countPipeline = [...pipeline, { $count: "total" }];
+  const totalResult = await ExamAttempt.aggregate(countPipeline);
+  const totalAttemptsCount = totalResult[0]?.total || 0;
+
+  // pagination logic
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const totalPages = Math.ceil(totalAttemptsCount / limit);
+
   // get paginated results
   const apiFeatures = new APIFeatures(
     ExamAttempt.aggregate(pipeline),
@@ -117,21 +127,33 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
   ).paginate();
 
   const results = await apiFeatures.query;
+  let totalPercentage = results.reduce((sum, cur) => sum + cur.percentage, 0);
+  let avgScore = results.length > 0 ? totalPercentage / results.length : 0;
 
   // get total exams count from same conditions
-  const examIdSetPipeline = [...pipeline,
+  const examIdSetPipeline = [
+    ...pipeline,
     {
       $group: {
-        _id: "$exam._id"
-      }
+        _id: "$exam._id",
+      },
     },
     {
-      $count: "totalExams"
+      $count: "totalExams",
     },
   ];
 
   const totalExamsResult = await ExamAttempt.aggregate(examIdSetPipeline);
   const totalExams = totalExamsResult[0]?.totalExams || 0;
+
+  // total students
+  const studentIdSetPipeline = [
+    ...pipeline,
+    { $group: { _id: "$student._id" } },
+    { $count: "totalStudents" },
+  ];
+  const totalStudentsResult = await ExamAttempt.aggregate(studentIdSetPipeline);
+  const totalStudents = totalStudentsResult[0]?.totalStudents || 0;
 
   if (!results || results.length === 0)
     return next(new ApiError(404, "No Attempts"));
@@ -140,10 +162,12 @@ export const getAllAttempts = asyncHandler(async (req, res, next) => {
     message: "Exam Attempts Retrieved Successfully",
     data: {
       totalAttempts: results.length,
-      totalExams, // ✅ added here
+      totalPages,
+      avgScore,
+      totalExams,
+      totalStudents,
       page: parseInt(req.query.page) || 1,
       attempts: results,
     },
   });
 });
-
