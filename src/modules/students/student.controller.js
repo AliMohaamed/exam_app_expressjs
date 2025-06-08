@@ -5,6 +5,7 @@ import { createOne, updateOne } from "../../utils/handlers/handlersFactory.js";
 import sendResponse from "../../utils/response.js";
 import { ExamAttempt } from "../../../DB/models/attempt.model.js";
 import APIFeatures from "../../utils/apiFeatures.js";
+import { StudentService } from "../../services/student.service.js";
 
 export const addStudent = createOne(User, {
   isConfirmed: true,
@@ -19,7 +20,6 @@ export const getAllStudent = asyncHandler(async (req, res, next) => {
   const featuresForCount = new APIFeatures(baseQuery, req.query)
     .filter()
     .search(["name", "email"]);
-  console.log(featuresForCount);
 
   const totalStudents = await featuresForCount.query.clone().countDocuments();
 
@@ -84,35 +84,8 @@ export const getAllStudent = asyncHandler(async (req, res, next) => {
 });
 
 export const getStudentById = asyncHandler(async (req, res, next) => {
-  const student = await User.findById(req.params.id)
-    .select("-isConfirmed -password")
-    .lean();
-  if (!student) return next(new ApiError(400, `No Data`));
-
-  const attempts = await ExamAttempt.find({
-    student: student._id,
-  })
-    .select("-__v")
-    .populate({
-      path: "exam",
-      select: "-createdAt -updatedAt -__v",
-      populate: {
-        path: "createdBy",
-        select: "name -_id",
-      },
-    })
-    .populate({
-      path: "answers.question",
-      select: "questionText points questionType -_id",
-    })
-    .lean();
-
-  sendResponse(res, {
-    data: {
-      ...student,
-      attempts,
-    },
-  });
+  const data = await StudentService.singleStudent(req.params.id);
+  sendResponse(res, { data });
 });
 
 export const updateStudent = updateOne(User);
@@ -128,4 +101,9 @@ export const deleteStudent = asyncHandler(async (req, res, next) => {
   });
 
   sendResponse(res, { message: "Deleted Student Successfully With Attempts" });
+});
+
+export const getProfile = asyncHandler(async (req, res, next) => {
+  const data = await StudentService.singleStudent(req.user._id);
+  sendResponse(res, { data });
 });

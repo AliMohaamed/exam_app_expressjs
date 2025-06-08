@@ -213,7 +213,6 @@ export const AttemptService = {
       _id: attemptId,
       student: studentId,
     }).populate("exam", "subject duration");
-    console.log(attemptId, studentId);
     if (!attempt) throw new ApiError(404, "Attempt not found");
 
     if (!["submitted", "auto-submitted"].includes(attempt.status)) {
@@ -222,6 +221,10 @@ export const AttemptService = {
         "The exam is not finished yet. Please submit first."
       );
     }
+    // Total Questions
+    // const totalQuestions = await Exam.findById(attempt.exam._id).populate(
+    //   "questions"
+    // );
 
     return {
       attemptId: attempt._id,

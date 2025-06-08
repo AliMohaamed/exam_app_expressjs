@@ -4,6 +4,7 @@ import {
   addStudent,
   deleteStudent,
   getAllStudent,
+  getProfile,
   getStudentById,
   updateStudent,
 } from "./student.controller.js";
@@ -16,12 +17,14 @@ import {
 
 const router = Router();
 
-// Add Student
+// Add Student Or Get All Students
 router
   .route("/")
   .all(protect, authorizeRole("admin"))
   .post(isValid(addStudentSchema), addStudent)
   .get(getAllStudent);
+
+router.get("/profile", protect, authorizeRole("student"), getProfile);
 
 router
   .route("/:id")
