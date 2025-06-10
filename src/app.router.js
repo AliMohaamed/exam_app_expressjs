@@ -62,7 +62,7 @@ export const appRouter = (app, express) => {
   // Attempt routes with exam attempt rate limiting
   const prefixes = ["/api/v1/student/exams", "/api/v1/admin/exams"];
   prefixes.forEach((prefix) => {
-    app.use(prefix, examAttemptLimiter, attemptRouter);
+    app.use(prefix,  attemptRouter);
   });
 
   // not found page router

@@ -242,44 +242,6 @@ The API documentation is available through Swagger UI when the application is ru
 http://localhost:3000/api-docs
 ```
 
-### Main API Endpoints
-
-#### Authentication
-
-- `POST /api/v1/auth/register` - User registration
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/logout` - User logout
-- `POST /api/v1/auth/refresh-token` - Refresh JWT token
-
-#### Exams
-
-- `GET /api/v1/exam` - List all exams
-- `POST /api/v1/exam` - Create new exam
-- `GET /api/v1/exam/:id` - Get exam details
-- `PUT /api/v1/exam/:id` - Update exam
-- `DELETE /api/v1/exam/:id` - Delete exam
-
-#### Questions
-
-- `GET /api/v1/question` - List all questions
-- `POST /api/v1/question` - Create new question
-- `GET /api/v1/question/:id` - Get question details
-- `PUT /api/v1/question/:id` - Update question
-- `DELETE /api/v1/question/:id` - Delete question
-
-#### Student
-
-- `GET /api/v1/student` - List all students
-- `POST /api/v1/student` - Create new student
-- `GET /api/v1/student/:id` - Get student details
-- `PUT /api/v1/student/:id` - Update student
-- `DELETE /api/v1/student/:id` - Delete student
-
-#### Exam Attempts
-
-- `POST /api/v1/student/exams/:examId/attempt` - Start exam attempt
-- `PUT /api/v1/student/exams/:examId/attempt` - Submit exam attempt
-- `GET /api/v1/student/exams/:examId/attempt` - Get attempt details
 
 ## 🔒 Security Features
 
