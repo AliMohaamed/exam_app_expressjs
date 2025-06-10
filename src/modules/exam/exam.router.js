@@ -18,22 +18,21 @@ import questionRouter from "../question/question.router.js";
 
 const router = Router();
 
-//* Question
-router.use("/:examId/question", questionRouter);
-
 router
   .route("/")
-  .all(protect)
-  .post(authorizeRole("admin"), isValid(createExamSchema), createExam)
+  .all(protect, authorizeRole("admin"))
+  .post(isValid(createExamSchema), createExam)
   .get(getAllExams);
 
 router
   .route("/:examId")
-  .all(protect)
+  .all(protect, authorizeRole("admin"))
   .get(isValid(examIdSchema), getExamById)
-  .put(authorizeRole("admin"), isValid(updateExamSchema), updateExam)
-  .delete(authorizeRole("admin"), isValid(examIdSchema), deleteExam);
+  .put(isValid(updateExamSchema), updateExam)
+  .delete(isValid(examIdSchema), deleteExam);
 
-router.get("/:examId/stats", protect, isValid(examIdSchema), getExamStats);
+router.get("/:examId/stats", protect,authorizeRole("admin"), isValid(examIdSchema), getExamStats);
+
+router.use("/:examId/question", questionRouter);
 
 export default router;

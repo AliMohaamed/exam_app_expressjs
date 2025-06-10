@@ -17,7 +17,6 @@ import {
 
 const router = Router();
 
-// Add Student Or Get All Students
 router
   .route("/")
   .all(protect, authorizeRole("admin"))

@@ -8,6 +8,8 @@ import morgan from "morgan";
 import cors from "cors";
 import compression from "compression";
 import errorHandler from "./middleware/errorhandler.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import { specs } from "./docs/config/swagger.js";
 
 export const appRouter = (app, express) => {
   // Global Middleware
@@ -17,6 +19,17 @@ export const appRouter = (app, express) => {
   if (process.env.NODE_ENV == "dev") {
     app.use(morgan(":method :url :response-time ms"));
   }
+
+  // Swagger UI setup
+  app.use(
+    "/api-docs",
+    swaggerUi.serve,
+    swaggerUi.setup(specs, {
+      explorer: true,
+      customCss: ".swagger-ui .topbar { display: none }",
+      customSiteTitle: "Exam System API Documentation",
+    })
+  );
 
   // Routes
   app.get("/", (req, res) => {

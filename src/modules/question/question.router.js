@@ -18,16 +18,15 @@ import { isValid } from "../../middleware/validation.middleware.js";
 
 const router = Router({ mergeParams: true });
 
-// Create Question And Get All Questions By Exam
 router
   .route("/")
-  .all(protect)
-  .post(authorizeRole("admin"), isValid(createQuestionSchema), createQuestion)
+  .all(protect, authorizeRole("admin"))
+  .post(isValid(createQuestionSchema), createQuestion)
   .get(getQuestionsByExam);
 
 router
   .route("/:questionId")
-  .all(protect)
+  .all(protect, authorizeRole("admin"))
   .get(isValid(questionIdSchema), getQuestionById)
   .put(isValid(updateQuestionSchema), updateQuestion)
   .delete(isValid(questionIdSchema), deleteQuestion);
