@@ -1,4 +1,4 @@
-# 🎓 Exam System Backend
+# Exam System Backend
 
 [![Node.js Version](https://img.shields.io/badge/node-v22.14.0-blue)](https://nodejs.org/)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
@@ -17,14 +17,13 @@ A robust and feature-rich examination management system built with Node.js and E
 - [Usage Examples](#-usage-examples)
 - [Configuration](#-configuration)
 - [Security Features](#-security-features)
-- [Testing](#-testing)
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
 - [License & Credits](#-license--credits)
 - [Troubleshooting](#-troubleshooting)
 - [Roadmap](#-roadmap)
 
-## ✨ Features
+## Features
 
 ### Admin Features
 
@@ -49,7 +48,6 @@ A robust and feature-rich examination management system built with Node.js and E
   - Support for multiple question types
   - Question categorization and tagging
   - Question bank management
-  - AI-powered question generation
   - Question difficulty levels
   - Question validation and review
 
@@ -131,7 +129,6 @@ A robust and feature-rich examination management system built with Node.js and E
 - **Communication:**
 
   - nodemailer v7.0.3 (Email notifications)
-  - node-schedule v2.1.1 (Task scheduling)
 
 - **Development:**
 
@@ -307,20 +304,6 @@ http://localhost:3000/api-docs
 - XSS protection
 - CSRF protection
 - SQL injection prevention
-
-## 🧪 Testing
-
-### Running Tests
-
-```bash
-npm test
-```
-
-### Test Coverage
-
-```bash
-npm run test:coverage
-```
 
 ## 🚢 Deployment
 

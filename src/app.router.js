@@ -10,6 +10,11 @@ import compression from "compression";
 import errorHandler from "./middleware/errorhandler.middleware.js";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./docs/config/swagger.js";
+import {
+  apiLimiter,
+  authLimiter,
+  examAttemptLimiter,
+} from "./middleware/rateLimiter.middleware.js";
 
 export const appRouter = (app, express) => {
   // Global Middleware
@@ -19,6 +24,9 @@ export const appRouter = (app, express) => {
   if (process.env.NODE_ENV == "dev") {
     app.use(morgan(":method :url :response-time ms"));
   }
+
+  // Apply rate limiting to all routes
+  app.use(apiLimiter);
 
   // Swagger UI setup
   app.use(
@@ -38,23 +46,23 @@ export const appRouter = (app, express) => {
       version: "1.0.0",
     });
   });
-  // Auth
-  app.use("/api/v1/auth", authRouter);
 
-  // Student
+  // Auth routes with stricter rate limiting
+  app.use("/api/v1/auth", authLimiter, authRouter);
+
+  // Student routes
   app.use("/api/v1/student", studentRouter);
 
-  // Question
+  // Exam routes
   app.use("/api/v1/exam", examRouter);
 
-  // Question
+  // Question routes
   app.use("/api/v1/question", questionRouter);
 
-  // Attempt
+  // Attempt routes with exam attempt rate limiting
   const prefixes = ["/api/v1/student/exams", "/api/v1/admin/exams"];
-
   prefixes.forEach((prefix) => {
-    app.use(prefix, attemptRouter);
+    app.use(prefix, examAttemptLimiter, attemptRouter);
   });
 
   // not found page router
