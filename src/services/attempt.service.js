@@ -221,10 +221,6 @@ export const AttemptService = {
         "The exam is not finished yet. Please submit first."
       );
     }
-    // Total Questions
-    // const totalQuestions = await Exam.findById(attempt.exam._id).populate(
-    //   "questions"
-    // );
 
     return {
       attemptId: attempt._id,
