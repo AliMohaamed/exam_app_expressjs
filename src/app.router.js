@@ -19,7 +19,18 @@ import {
 export const appRouter = (app, express) => {
   // Global Middleware
   app.use(express.json());
-  app.use(cors());
+  // FE_URL
+  app.use(
+    cors(
+      process.env.NODE_ENV === "dev"
+        ? { origin: "*" } // Allow all origins in development
+        : {
+            origin: process.env.FE_URL, // Use the configured frontend URL in production
+            credentials: true, // Allow credentials if needed
+          }
+    )
+  );
+  
   app.use(compression());
   if (process.env.NODE_ENV == "dev") {
     app.use(morgan(":method :url :response-time ms"));
@@ -62,7 +73,7 @@ export const appRouter = (app, express) => {
   // Attempt routes with exam attempt rate limiting
   const prefixes = ["/api/v1/student/exams", "/api/v1/admin/exams"];
   prefixes.forEach((prefix) => {
-    app.use(prefix,  attemptRouter);
+    app.use(prefix, attemptRouter);
   });
 
   // not found page router
