@@ -13,24 +13,34 @@ import { specs } from "./docs/config/swagger.js";
 import {
   apiLimiter,
   authLimiter,
-  examAttemptLimiter,
 } from "./middleware/rateLimiter.middleware.js";
 
 export const appRouter = (app, express) => {
   // Global Middleware
   app.use(express.json());
-  // FE_URL
+  // CORS setup
+  const allowedOrigins = [process.env.FE_URL];
+
   app.use(
-    cors(
-      process.env.NODE_ENV === "dev"
-        ? { origin: "*" } // Allow all origins in development
-        : {
-            origin: process.env.FE_URL, // Use the configured frontend URL in production
-            credentials: true, // Allow credentials if needed
-          }
-    )
+    cors({
+      origin: function (origin, callback) {
+        // In development mode, allow requests from any origin 
+        if (process.env.NODE_ENV === "dev") {
+          console.log("DEV MODE - CORS Origin:", origin || "no origin");
+          callback(null, true);
+        } 
+        // In production, only allow specified origins
+        else if (!origin || allowedOrigins.includes(origin)) {
+          console.log("CORS Origin:", origin || "no origin");
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+      credentials: true,
+    })
   );
-  
+
   app.use(compression());
   if (process.env.NODE_ENV == "dev") {
     app.use(morgan(":method :url :response-time ms"));
