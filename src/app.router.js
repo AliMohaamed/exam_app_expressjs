@@ -30,7 +30,7 @@ export const appRouter = (app, express) => {
           callback(null, true);
         } 
         // In production, only allow specified origins
-        else if (!origin || allowedOrigins.includes(origin)) {
+        else if (origin || allowedOrigins.includes(origin)) {
           console.log("CORS Origin:", origin || "no origin");
           callback(null, true);
         } else {
