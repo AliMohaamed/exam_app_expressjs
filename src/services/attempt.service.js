@@ -230,8 +230,8 @@ export const AttemptService = {
       timeSpent: attempt.timeSpent,
       isPassed: attempt.isPassed,
       exam: {
-        subject: attempt.exam.subject,
-        duration: attempt.exam.duration,
+        subject: attempt.exam?.subject,
+        duration: attempt.exam?.duration,
       },
       answers: attempt.answers,
     };
@@ -262,8 +262,8 @@ export const AttemptService = {
       timeSpent: a.timeSpent,
       isPassed: a.isPassed,
       exam: {
-        subject: a.exam.subject,
-        duration: a.exam.duration,
+        subject: a.exam?.subject,
+        duration: a.exam?.duration,
       },
       answers: a.answers,
     }));

@@ -71,11 +71,18 @@ export const getAllStudent = asyncHandler(async (req, res, next) => {
     };
   });
 
+  // Total Students Count
+  const totalStudentsCount = await User.countDocuments({
+    role: "student",
+    isConfirmed: true,
+  });
+
   // 5 Send response
   sendResponse(res, {
     message: "All Students",
     data: {
       results: data.length,
+      totalResults: totalStudentsCount,
       page: parseInt(req.query.page) || 1,
       totalPages: Math.ceil(totalStudents / 10),
       students: data,
