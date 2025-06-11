@@ -29,14 +29,14 @@ export const generateAttemptsExcel = async (attempts = []) => {
   attempts.forEach((attempt, index) => {
     const isPassed = attempt.percentage >= 60;
     const row = worksheet.addRow({
-      studentName: attempt.student.name,
-      studentEmail: attempt.student.email,
-      studentLevel: attempt.student.level,
-      studentStatus: attempt.student.status,
-      subject: attempt.exam.subject,
-      examDescription: attempt.exam.description,
-      examLevel: attempt.exam.level,
-      duration: attempt.exam.duration,
+      studentName: attempt.student?.name,
+      studentEmail: attempt.student?.email,
+      studentLevel: attempt.student?.level,
+      studentStatus: attempt.student?.status,
+      subject: attempt.exam?.subject,
+      examDescription: attempt.exam?.description,
+      examLevel: attempt.exam?.level,
+      duration: attempt.exam?.duration,
       startTime: new Date(attempt.startTime).toLocaleString("en-US"),
       endTime: new Date(attempt.endTime).toLocaleString("en-US"),
       timeSpent: attempt.timeSpent,
