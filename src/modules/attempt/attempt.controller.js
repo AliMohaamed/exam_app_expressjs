@@ -72,9 +72,13 @@ export const exportAttemptsToExcel = asyncHandler(async (req, res, next) => {
   if (!attempts || attempts.length === 0) {
     return next(new ApiError("No attempts found", 404));
   }
-
+  const attemptsWithoutNull = attempts.filter((attempt) => {
+    console.log(attempt.student && attempt.exam);
+    return attempt.student !== null && attempt.exam !== null;
+  });
+  console.log(attemptsWithoutNull);
   // Generate Excel workbook
-  const workbook = await generateAttemptsExcel(attempts);
+  const workbook = await generateAttemptsExcel(attemptsWithoutNull);
 
   res.setHeader(
     "Content-Type",
