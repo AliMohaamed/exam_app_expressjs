@@ -21,7 +21,7 @@ export const authLimiter = rateLimit({
 
 // Stricter limiter for exam attempts
 export const examAttemptLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 2 * 60 * 1000, // 1 hour || 2 minutes
   max: 3, // Limit each IP to 3 exam attempts per hour
   message:
     "Too many exam attempts from this IP, please try again after an hour",
