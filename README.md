@@ -94,7 +94,6 @@ A robust and feature-rich examination management system built with Node.js and E
   - Rate limiting
 
 - **Advanced Features**
-  - AI-powered question generation
   - Automated scheduling system
   - Email notifications
   - Excel report generation
@@ -278,7 +277,6 @@ http://localhost:3000/api-docs
 ### Performance Optimization
 
 - Enable compression
-- Use caching
 - Optimize database queries
 - Implement rate limiting
 
@@ -296,15 +294,6 @@ http://localhost:3000/api-docs
 - Use meaningful variable names
 - Write clear comments
 - Follow the existing code structure
-
-## 📄 License & Credits
-
-This project is licensed under the ISC License.
-
-### Acknowledgments
-
-- [List of contributors]
-- [List of resources used]
 
 ## 🔧 Troubleshooting
 
@@ -335,10 +324,5 @@ This project is licensed under the ISC License.
 - [ ] Integration with LMS systems
 - [ ] Enhanced AI question generation
 
-### Known Issues
-
-- [List of known issues]
-
----
 
 For more information, please contact alimohamed11907@gmail.com
