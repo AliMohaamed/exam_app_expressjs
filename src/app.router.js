@@ -47,7 +47,7 @@ export const appRouter = (app, express) => {
   }
 
   // Apply rate limiting to all routes
-  // app.use(apiLimiter);
+  app.use(apiLimiter);
 
   // Swagger UI setup
   app.use(
@@ -69,8 +69,8 @@ export const appRouter = (app, express) => {
   });
 
   // Auth routes with stricter rate limiting
-  // app.use("/api/v1/auth", authLimiter, authRouter);
-  app.use("/api/v1/auth",  authRouter);
+  app.use("/api/v1/auth", authLimiter, authRouter);
+  // app.use("/api/v1/auth",  authRouter);
 
   // Student routes
   app.use("/api/v1/student", studentRouter);
